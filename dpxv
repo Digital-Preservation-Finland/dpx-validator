@@ -1,0 +1,86 @@
+#!/usr/bin/python
+
+import os
+import sys
+from struct import unpack, calcsize
+from collections import namedtuple
+
+Field = namedtuple('Field', ['offset', 'length', 'ptype', 'reverse', 'func'])
+
+
+#  UTILITY
+#The byte reading procedure of a section in a file
+
+def read_field(field):
+	f.seek(field.offset)
+	a = bytearray(f.read(calcsize(field.ptype)*field.length))
+	if field.reverse:
+		a.reverse()
+	if field.ptype == 'c':
+		return a
+	return unpack(field.ptype, (a[:]))[0]
+
+
+#  VALIDATION PROCEDURES
+#List of functions used to validate various fields in a header
+#The functions get field variable which is
+# bytearray representation of read section from the file
+
+def check_magic_number(field):
+	assert field == bytearray(['S', 'D', 'P', 'X'])
+	assert str(field) == "SDPX"
+	print "Magic number checked"
+
+
+def offset_to_image(field):
+	assert field == 65536
+	print "Image offset checked"
+
+def check_version(field):
+	field = field.rsplit('\0')[0]
+	assert field == bytearray(['V', '2', '.', '0']), field
+	assert str(field) == "V2.0"
+	print "Version checked"
+
+def check_filesize(field):
+	stats = os.stat(path)
+	assert field == stats.st_size, field
+	print "File size checked"
+
+def check_unencrypted(field):
+	#print 'hex', hex(field)
+	assert 'fffffff' in hex(field)
+	print 'Marked as unencrypted'
+
+
+
+#  VALIDATION CONTROL
+#List postitions to validate
+#func property must refer to validation procedure for that field
+
+fields = [
+	Field(offset=0, length=4, ptype='c', reverse=False, func=check_magic_number),
+	Field(offset=4, length=1, ptype='I', reverse=True, func=offset_to_image),
+	Field(offset=8, length=8, ptype='c', reverse=False, func=check_version),
+	Field(offset=16, length=1, ptype='I', reverse=True, func=check_filesize),
+	Field(offset=660, length=1, ptype='I', reverse=True, func=check_unencrypted)
+]
+
+
+#  MAIN
+#Open a handle for a file
+#Postions to read from the file are defined in 'fields' variable
+#Close the handle
+
+if len(sys.argv) < 2:
+    print 'USAGE: dpxv FILENAME'
+    exit(0)
+
+path = sys.argv[1]
+print "###", path
+f = open(path, "r")
+
+for position in fields:
+	position.func(read_field(position))
+
+f.close()
