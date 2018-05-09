@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 import os
 import sys
 from struct import unpack, calcsize
@@ -11,9 +9,9 @@ Field = namedtuple('Field', ['offset', 'length', 'ptype', 'reverse', 'func'])
 #  UTILITY
 #The byte reading procedure of a section in a file
 
-def read_field(field):
-	f.seek(field.offset)
-	a = bytearray(f.read(calcsize(field.ptype)*field.length))
+def read_field(file, field):
+	file.seek(field.offset)
+	a = bytearray(file.read(calcsize(field.ptype)*field.length))
 	if field.reverse:
 		a.reverse()
 	if field.ptype == 'c':
@@ -81,6 +79,6 @@ print "###", path
 f = open(path, "r")
 
 for position in fields:
-	position.func(read_field(position))
+	position.func(read_field(f, position))
 
 f.close()
