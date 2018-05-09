@@ -1,2 +1,6 @@
 *.pyc
 rpmbuild
+MANIFEST
+build
+*.egg-info
+dist

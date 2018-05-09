@@ -1,5 +1,7 @@
 # vim:ft=spec
 
+%{!?__python2: %global __python2 /usr/bin/python2}
+
 %define file_prefix M4_FILE_PREFIX
 %define file_ext M4_FILE_EXT
 
