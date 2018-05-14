@@ -5,7 +5,7 @@ from collections import namedtuple
 
 
 BIGENDIANESS = True
-Field = namedtuple('Field', ['offset', 'pformat', 'reverse', 'func'])
+Field = namedtuple('Field', ['offset', 'pformat', 'func'])
 
 _ERRORs = 0 # any validation errors?
 _DEBUG = 0
@@ -35,7 +35,7 @@ def read_field(f, field):
 
     a = bytearray(f.read(length))
 
-    if field.reverse:
+    if BIGENDIANESS:
         a.reverse()
 
     return unpack(field.pformat, a)[0]
@@ -72,13 +72,13 @@ def offset_to_image(field, f=None):
     if field > size:
         raise ValidationError('Offset to image %s is more file size %s ' % (field, size))
 
-#    generic_header_fields = Field(offset=24, pformat='I', reverse=not BIGENDIANESS, func=None)
+#    generic_header_fields = Field(offset=24, pformat='I', func=None)
 #    generic_header_data = read_field(f, generic_header_fields)[0]
 #
-#    industry_header_field = Field(offset=28, pformat='I', reverse=not BIGENDIANESS, func=None)
+#    industry_header_field = Field(offset=28, pformat='I', func=None)
 #    industry_header_data = read_field(f, industry_header_field)[0]
 #
-#    user_header_field = Field(offset=32, pformat='I', reverse=not BIGENDIANESS, func=None)
+#    user_header_field = Field(offset=32, pformat='I', func=None)
 #    user_header_data = read_field(f, user_header_field)[0]
 #
 #    print 'gd', generic_header_data
@@ -129,11 +129,11 @@ def check_unencrypted(field, f=None):
 #func property must refer to validation procedure for that field
 
 fields = [
-        Field(offset=0,pformat='cccc', reverse=BIGENDIANESS, func=check_magic_number),
-        Field(offset=4, pformat='I', reverse=BIGENDIANESS, func=offset_to_image),
-        Field(offset=8, pformat='cccccccc', reverse=BIGENDIANESS, func=check_version),
-        Field(offset=16, pformat='I', reverse=BIGENDIANESS, func=check_filesize),
-        Field(offset=660, pformat='I', reverse=BIGENDIANESS, func=check_unencrypted)
+        Field(offset=0,pformat='cccc', func=check_magic_number),
+        Field(offset=4, pformat='I', func=offset_to_image),
+        Field(offset=8, pformat='cccccccc', func=check_version),
+        Field(offset=16, pformat='I', func=check_filesize),
+        Field(offset=660, pformat='I', func=check_unencrypted)
         ]
 
 
