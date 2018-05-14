@@ -24,3 +24,11 @@ Field 4
 
 Field 15
         Image is unecrypted
+
+
+Format strings
+--------------
+
+`Format strings`_  defines form into which binary data is read.
+
+.. _`Format strings`: https://docs.python.org/2/library/struct.html#format-characters
