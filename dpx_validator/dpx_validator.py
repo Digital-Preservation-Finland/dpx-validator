@@ -1,6 +1,6 @@
 import os
 import sys
-from struct import unpack, calcsize
+from struct import unpack, calcsize, error
 from collections import namedtuple
 
 
@@ -16,11 +16,16 @@ if _DEBUG:
     from array import array
 
 
-#  UTILITY
+# ERRORS
 
 class ValidationError(Exception):
     pass
 
+class DataReadingError(Exception):
+    pass
+
+
+#  UTILITY
 
 #The byte reading procedure of a section in a file
 def read_field(f, field):
@@ -129,9 +134,9 @@ def check_unencrypted(field, f=None):
 #func property must refer to validation procedure for that field
 
 fields = [
-        Field(offset=0,pformat='cccc', func=check_magic_number),
+        Field(offset=0, pformat='c'*4, func=check_magic_number),
         Field(offset=4, pformat='I', func=offset_to_image),
-        Field(offset=8, pformat='cccccccc', func=check_version),
+        Field(offset=8, pformat='c'*8, func=check_version),
         Field(offset=16, pformat='I', func=check_filesize),
         Field(offset=660, pformat='I', func=check_unencrypted)
         ]
@@ -161,6 +166,10 @@ for position in fields:
         print e
         _ERRORs = 1
         continue
+
+    except error as e:
+        raise DataReadingError("Binary data 'struct.unpack'ing failed: %s" % e)
+
 
 f.close()
 
