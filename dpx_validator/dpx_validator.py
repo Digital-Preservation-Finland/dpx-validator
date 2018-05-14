@@ -3,35 +3,42 @@ import sys
 from struct import unpack, calcsize
 from collections import namedtuple
 
-BIGENDIANESS = True
-Field = namedtuple('Field', ['offset', 'length', 'ptype', 'reverse', 'func'])
 
-_FS_FILESIZE = 0
-_ERROR = 0 # any validation errors?
-_p = True
+BIGENDIANESS = True
+Field = namedtuple('Field', ['offset', 'pformat', 'reverse', 'func'])
+
+_ERRORs = 0 # any validation errors?
+_DEBUG = 0
+_p = 0
+
+
+if _DEBUG:
+    from array import array
 
 
 #  UTILITY
-#The byte reading procedure of a section in a file
 
 class ValidationError(Exception):
-    def __init__(self):
-        print str(e)
-        #sys.stderr.write(str(e))
+    pass
 
 
-def read_field(file, field):
+#The byte reading procedure of a section in a file
+def read_field(f, field):
 
-    file.seek(field.offset)
-    a = bytearray(file.read(calcsize(field.ptype)*field.length))
+    f.seek(field.offset)
+    length = calcsize(field.pformat)
+
+    if _DEBUG:
+        a = array(field.pformat[0], f.read(length))
+        print 'debug', field.offset, length, a.typecode, a, a.tolist()
+        f.seek(field.offset)
+
+    a = bytearray(f.read(length))
 
     if field.reverse:
         a.reverse()
 
-    if field.ptype == 'c':
-        return a
-
-    return unpack(field.ptype, (a[:]))[0]
+    return unpack(field.pformat, a)[0]
 
 
 #  VALIDATION PROCEDURES
@@ -39,7 +46,7 @@ def read_field(file, field):
 #The functions get field variable which is
 # bytearray representation of read section from the file
 
-def check_magic_number(field):
+def check_magic_number(field, f=None):
 
     if not field == bytearray(['S', 'D', 'P', 'X']) and \
            str(field) == "SDPX":
@@ -48,7 +55,7 @@ def check_magic_number(field):
 
         #check for reversed endianess just in case
         if not field == bytearray(['X', 'P', 'D', 'S']) and \
-           str(field) == "XPDS":
+            str(field) == "XPDS":
 
             raise ValidationError('Invalid magic number: %s' % field.reverse())
 
@@ -58,18 +65,36 @@ def check_magic_number(field):
     if _p: print "Magic number checkd"
 
 
-def offset_to_image(field):
+def offset_to_image(field, f=None):
 
-    if not field == 65536:
-        raise ValidationError('Offset to image %s is not 65536 ' % field)
+    size = os.stat(path).st_size
 
-    if field < _FS_FILESIZE:
-        raise ValidationError('Offset to image %s is less file size %s ' % (field, _FS_FILESIZE))
+    if field > size:
+        raise ValidationError('Offset to image %s is more file size %s ' % (field, size))
+
+#    generic_header_fields = Field(offset=24, pformat='I', reverse=not BIGENDIANESS, func=None)
+#    generic_header_data = read_field(f, generic_header_fields)[0]
+#
+#    industry_header_field = Field(offset=28, pformat='I', reverse=not BIGENDIANESS, func=None)
+#    industry_header_data = read_field(f, industry_header_field)[0]
+#
+#    user_header_field = Field(offset=32, pformat='I', reverse=not BIGENDIANESS, func=None)
+#    user_header_data = read_field(f, user_header_field)[0]
+#
+#    print 'gd', generic_header_data
+#    print 'id', industry_header_data
+#    print 'ud', user_header_data
+#    print 'field', field
+#
+#    image_offset = generic_header_data + user_header_data + industry_header_data
+#    if not field == image_offset:
+#        raise ValidationError('Offset to image %s is not %s ' % (field, image_offset))
+
 
     if _p: print "Offset checkd"
 
 
-def check_version(field):
+def check_version(field, f=None):
 
     field = field.rsplit('\0')[0]
 
@@ -80,17 +105,17 @@ def check_version(field):
     if _p: print "Version checked"
 
 
-def check_filesize(field):
+def check_filesize(field, f=None):
 
-    _FS_FILESIZE = os.stat(path).st_size
+    size = os.stat(path).st_size
 
-    if not field == _FS_FILESIZE:
-        raise ValidationError("File size field in header (%s) differs from filesystem size %s" % str(field, _FS_FILESIZE))
+    if not field == size:
+        raise ValidationError("File size in header (%s) differs from filesystem size %s" % (str(field), size))
 
     if _p: print "File size checked"
 
 
-def check_unencrypted(field):
+def check_unencrypted(field, f=None):
 
     if not 'fffffff' in hex(field):
         raise ValidationError("Encryption field in header not NULL or undefined")
@@ -104,11 +129,11 @@ def check_unencrypted(field):
 #func property must refer to validation procedure for that field
 
 fields = [
-        Field(offset=0, length=4, ptype='c', reverse=BIGENDIANESS, func=check_magic_number),
-        Field(offset=4, length=1, ptype='I', reverse=not BIGENDIANESS, func=offset_to_image),
-        Field(offset=8, length=8, ptype='c', reverse=BIGENDIANESS, func=check_version),
-        Field(offset=16, length=1, ptype='I', reverse=not BIGENDIANESS, func=check_filesize),
-        Field(offset=660, length=1, ptype='I', reverse=not BIGENDIANESS, func=check_unencrypted)
+        Field(offset=0,pformat='cccc', reverse=BIGENDIANESS, func=check_magic_number),
+        Field(offset=4, pformat='I', reverse=BIGENDIANESS, func=offset_to_image),
+        Field(offset=8, pformat='cccccccc', reverse=BIGENDIANESS, func=check_version),
+        Field(offset=16, pformat='I', reverse=BIGENDIANESS, func=check_filesize),
+        Field(offset=660, pformat='I', reverse=BIGENDIANESS, func=check_unencrypted)
         ]
 
 
@@ -122,17 +147,21 @@ if len(sys.argv) < 2:
     exit(_ERROR)
 
 path = sys.argv[1]
-print "###", path
+
 f = open(path, "r")
+print "###", path
 
 for position in fields:
-    try:
-        position.func(read_field(f, position))
-    except ValidationError as e:
-        _ERROR = 1
-        continue
 
+    try:
+        field = read_field(f, position)
+        position.func(field, f=f)
+
+    except ValidationError as e:
+        print e
+        _ERRORs = 1
+        continue
 
 f.close()
 
-exit(_ERROR)
+exit(_ERRORs)
