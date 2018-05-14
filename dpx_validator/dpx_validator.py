@@ -43,7 +43,7 @@ def read_field(f, field):
     if BIGENDIANESS:
         a.reverse()
 
-    return unpack(field.pformat, a)[0]
+    return unpack(field.pformat, a)[0] # tuple
 
 
 #  VALIDATION PROCEDURES
@@ -94,7 +94,6 @@ def offset_to_image(field, f=None):
 #    image_offset = generic_header_data + user_header_data + industry_header_data
 #    if not field == image_offset:
 #        raise ValidationError('Offset to image %s is not %s ' % (field, image_offset))
-
 
     if _p: print "Offset checkd"
 
@@ -153,8 +152,10 @@ if len(sys.argv) < 2:
 
 path = sys.argv[1]
 
+
 f = open(path, "r")
 print "###", path
+
 
 for position in fields:
 
