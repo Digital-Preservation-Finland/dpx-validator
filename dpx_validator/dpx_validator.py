@@ -166,11 +166,12 @@ for position in fields:
         position.func(field, f=f)
 
     except ValidationError as e:
-        print e
+        sys.stderr.write(str(e)+'\n')
         RETURNCODE = 1
         continue
 
     except error as e: #struct.error
+#        sys.stderr.write(e)
         raise DataReadingError("Binary data 'struct.unpack'ing failed: %s" % e)
 
 
