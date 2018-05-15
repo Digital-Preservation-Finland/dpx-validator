@@ -4,12 +4,13 @@ from struct import unpack, calcsize, error
 from collections import namedtuple
 
 
-BIGENDIANESS = True
+BYTEORDER = ">"
 Field = namedtuple('Field', ['offset', 'pformat', 'func'])
 
 _ERRORs = 0 # any validation errors?
 _DEBUG = 0
-_p = 0
+_p = 1
+_prefix = ' +'
 
 
 if _DEBUG:
@@ -40,10 +41,12 @@ def read_field(f, field):
 
     a = bytearray(f.read(length))
 
-    if BIGENDIANESS:
-        a.reverse()
+    data = unpack(BYTEORDER+field.pformat, a) # data tuple
 
-    return unpack(field.pformat, a)[0] # tuple
+    if len(data) == 1:
+        return data[0]
+
+    return data
 
 
 #  VALIDATION PROCEDURES
@@ -53,21 +56,12 @@ def read_field(f, field):
 
 def check_magic_number(field, f=None):
 
-    if not field == bytearray(['S', 'D', 'P', 'X']) and \
-           str(field) == "SDPX":
+    field = bytearray(field)
 
-        field.reverse()
+    if not field == bytearray(['S', 'D', 'P', 'X']):
+        raise ValidationError('Invalid magic number: %s' % field.reverse())
 
-        #check for reversed endianess just in case
-        if not field == bytearray(['X', 'P', 'D', 'S']) and \
-            str(field) == "XPDS":
-
-            raise ValidationError('Invalid magic number: %s' % field.reverse())
-
-        print "Reverse endianess"
-        BIGENDIANESS = not BIGENDIANESS
-
-    if _p: print "Magic number checkd"
+    if _p: print " + Magic number checkd:", field
 
 
 def offset_to_image(field, f=None):
@@ -95,18 +89,17 @@ def offset_to_image(field, f=None):
 #    if not field == image_offset:
 #        raise ValidationError('Offset to image %s is not %s ' % (field, image_offset))
 
-    if _p: print "Offset checkd"
+    if _p: print _prefix, 'Offset checkd', field, '<', size
 
 
 def check_version(field, f=None):
 
-    field = field.rsplit('\0')[0]
+    field = bytearray(field).rsplit('\0')[0]
 
-    if not field == bytearray(['V', '2', '.', '0']) and \
-            str(field) == "V2.0":
+    if not field == bytearray(['V', '2', '.', '0']):
         raise ValidationError("Invalid header version %s" % str(field))
 
-    if _p: print "Version checked"
+    if _p: print _prefix, 'Version checked', field
 
 
 def check_filesize(field, f=None):
@@ -116,7 +109,7 @@ def check_filesize(field, f=None):
     if not field == size:
         raise ValidationError("File size in header (%s) differs from filesystem size %s" % (str(field), size))
 
-    if _p: print "File size checked"
+    if _p: print _prefix, 'File size checked', field, size
 
 
 def check_unencrypted(field, f=None):
@@ -124,7 +117,7 @@ def check_unencrypted(field, f=None):
     if not 'fffffff' in hex(field):
         raise ValidationError("Encryption field in header not NULL or undefined")
 
-    if _p: print 'Marked as unencrypted'
+    if _p: print _prefix, 'Marked as unencrypted', hex(field)
 
 
 
