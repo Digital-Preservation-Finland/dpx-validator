@@ -7,10 +7,8 @@ from collections import namedtuple
 BYTEORDER = ">" # Bigendian
 Field = namedtuple('Field', ['offset', 'pformat', 'func'])
 
-path = None
-
 _DEBUG = 0
-_p = 1
+_p = 0
 _prefix = ' +'
 
 
@@ -42,6 +40,7 @@ def read_field(f, field):
 
     a = bytearray(f.read(length))
 
+    global BYTEORDER
     data = unpack(BYTEORDER+field.pformat, a) # data tuple
 
     if len(data) == 1:
@@ -138,10 +137,9 @@ def main():
         exit(1)
 
     RETURNCODE = 0
-    path = sys.argv[1]
 
+    path = sys.argv[1]
     handle = open(path, "r")
-    print "###", path
 
     for position in fields:
 
@@ -159,6 +157,10 @@ def main():
 
 
     handle.close()
+
+    # Message to standard output stream
+    if RETURNCODE == 0:
+        print 'File %s is valid. Br, dpx validator' % path
 
     exit(RETURNCODE)
 
