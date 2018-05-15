@@ -7,7 +7,7 @@ from collections import namedtuple
 BYTEORDER = ">" # Bigendian
 Field = namedtuple('Field', ['offset', 'pformat', 'func'])
 
-_ERRORs = 0 # any validation errors?
+RETURNCODE = 0 # any validation errors?
 _DEBUG = 0
 _p = 1
 _prefix = ' +'
@@ -150,7 +150,7 @@ fields = [
 
 if len(sys.argv) < 2:
     print 'USAGE: dpxv FILENAME'
-    exit(_ERROR)
+    exit(1)
 
 path = sys.argv[1]
 
@@ -167,7 +167,7 @@ for position in fields:
 
     except ValidationError as e:
         print e
-        _ERRORs = 1
+        RETURNCODE = 1
         continue
 
     except error as e: #struct.error
@@ -179,4 +179,4 @@ f.close()
 #for (x, y) in locals().items(): print x, y
 
 
-exit(_ERRORs)
+exit(RETURNCODE)
