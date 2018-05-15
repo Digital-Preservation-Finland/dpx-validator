@@ -7,7 +7,8 @@ from collections import namedtuple
 BYTEORDER = ">" # Bigendian
 Field = namedtuple('Field', ['offset', 'pformat', 'func'])
 
-RETURNCODE = 0 # any validation errors?
+path = None
+
 _DEBUG = 0
 _p = 1
 _prefix = ' +'
@@ -54,7 +55,7 @@ def read_field(f, field):
 #The functions get field variable which is
 # bytearray representation of read section from the file
 
-def check_magic_number(field, f=None):
+def check_magic_number(field, **kwargs):
 
     global BYTEORDER
     validate_by = unpack(BYTEORDER+'I', 'SDPX')[0]
@@ -73,35 +74,17 @@ def check_magic_number(field, f=None):
     if _p: print " + Magic number checkd:", field
 
 
-def offset_to_image(field, f=None):
+def offset_to_image(field, **kwargs):
 
-    size = os.stat(path).st_size
+    size = os.stat(kwargs['path']).st_size
 
     if field > size:
         raise ValidationError('Offset to image %s is more file size %s ' % (field, size))
 
-#    generic_header_fields = Field(offset=24, pformat='I', func=None)
-#    generic_header_data = read_field(f, generic_header_fields)[0]
-#
-#    industry_header_field = Field(offset=28, pformat='I', func=None)
-#    industry_header_data = read_field(f, industry_header_field)[0]
-#
-#    user_header_field = Field(offset=32, pformat='I', func=None)
-#    user_header_data = read_field(f, user_header_field)[0]
-#
-#    print 'gd', generic_header_data
-#    print 'id', industry_header_data
-#    print 'ud', user_header_data
-#    print 'field', field
-#
-#    image_offset = generic_header_data + user_header_data + industry_header_data
-#    if not field == image_offset:
-#        raise ValidationError('Offset to image %s is not %s ' % (field, image_offset))
-
     if _p: print _prefix, 'Offset checkd', field, '<', size
 
 
-def check_version(field, f=None):
+def check_version(field, **kwargs):
 
     field = bytearray(field).rsplit('\0')[0]
 
@@ -111,9 +94,9 @@ def check_version(field, f=None):
     if _p: print _prefix, 'Version checked', field
 
 
-def check_filesize(field, f=None):
+def check_filesize(field, **kwargs):
 
-    size = os.stat(path).st_size
+    size = os.stat(kwargs['path']).st_size
 
     if not field == size:
         raise ValidationError("File size in header (%s) differs from filesystem size %s" % (str(field), size))
@@ -121,7 +104,7 @@ def check_filesize(field, f=None):
     if _p: print _prefix, 'File size checked', field, size
 
 
-def check_unencrypted(field, f=None):
+def check_unencrypted(field, **kwargs):
 
     if not 'fffffff' in hex(field):
         raise ValidationError("Encryption field in header not NULL or undefined")
@@ -135,12 +118,12 @@ def check_unencrypted(field, f=None):
 #func property must refer to validation procedure for that field
 
 fields = [
-        Field(offset=0, pformat='I', func=check_magic_number),
-        Field(offset=4, pformat='I', func=offset_to_image),
-        Field(offset=8, pformat='c'*8, func=check_version),
-        Field(offset=16, pformat='I', func=check_filesize),
-        Field(offset=660, pformat='I', func=check_unencrypted)
-        ]
+    Field(offset=0, pformat='I', func=check_magic_number),
+    Field(offset=4, pformat='I', func=offset_to_image),
+    Field(offset=8, pformat='c'*8, func=check_version),
+    Field(offset=16, pformat='I', func=check_filesize),
+    Field(offset=660, pformat='I', func=check_unencrypted)
+]
 
 
 #  MAIN
@@ -148,36 +131,37 @@ fields = [
 #Postions to read from the file are defined in 'fields' variable
 #Close the handle
 
-if len(sys.argv) < 2:
-    print 'USAGE: dpxv FILENAME'
-    exit(1)
+def main():
 
-path = sys.argv[1]
+    if len(sys.argv) < 2:
+        print 'USAGE: dpxv FILENAME'
+        exit(1)
 
+    RETURNCODE = 0
+    path = sys.argv[1]
 
-f = open(path, "r")
-print "###", path
+    handle = open(path, "r")
+    print "###", path
 
+    for position in fields:
 
-for position in fields:
+        try:
+            field = read_field(handle, position)
+            position.func(field, f=handle, path=path)
 
-    try:
-        field = read_field(f, position)
-        position.func(field, f=f)
+        except ValidationError as e:
+            sys.stderr.write(str(e)+'\n')
+            RETURNCODE = 1
+            continue
 
-    except ValidationError as e:
-        sys.stderr.write(str(e)+'\n')
-        RETURNCODE = 1
-        continue
-
-    except error as e: #struct.error
-#        sys.stderr.write(e)
-        raise DataReadingError("Binary data 'struct.unpack'ing failed: %s" % e)
-
-
-f.close()
-
-#for (x, y) in locals().items(): print x, y
+        except error as e: #struct.error
+            raise DataReadingError("Binary data 'struct.unpack'ing failed: %s" % e)
 
 
-exit(RETURNCODE)
+    handle.close()
+
+    exit(RETURNCODE)
+
+
+if __name__ == '__main__':
+    main()

@@ -1,7 +1,8 @@
 from setuptools import setup, find_packages
 
-setup(name="dpx_validator",
+setup(name="dpxv",
       version="0.1",
       packages=find_packages(),
-      scripts=["dpx_validator/dpx_validator.py"]
+      entry_points={'console_scripts':
+          ["dpxv=dpxv.dpxv:main"]}
 )
