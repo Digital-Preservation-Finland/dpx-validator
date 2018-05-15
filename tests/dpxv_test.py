@@ -9,7 +9,7 @@ from subprocess import check_call, CalledProcessError
 def test(testfile, returncode):
 
     try:
-        code = check_call(['python', 'dpx_validator/dpx_validator.py', testfile])
+        code = check_call(['python', '-m', 'dpxv.dpxv', testfile])
 
     except CalledProcessError as e:
         code = e.returncode
