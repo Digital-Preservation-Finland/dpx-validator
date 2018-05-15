@@ -4,7 +4,7 @@ from struct import unpack, calcsize, error
 from collections import namedtuple
 
 
-BYTEORDER = ">"
+BYTEORDER = ">" # Bigendian
 Field = namedtuple('Field', ['offset', 'pformat', 'func'])
 
 _ERRORs = 0 # any validation errors?
@@ -56,10 +56,19 @@ def read_field(f, field):
 
 def check_magic_number(field, f=None):
 
-    field = bytearray(field)
+    global BYTEORDER
+    validate_by = unpack(BYTEORDER+'I', 'SDPX')[0]
 
-    if not field == bytearray(['S', 'D', 'P', 'X']):
-        raise ValidationError('Invalid magic number: %s' % field.reverse())
+    if not field == validate_by:
+
+        validate_by = unpack(BYTEORDER+'I', 'XPDS')[0]
+
+        if not field == validate_by:
+            raise ValidationError('Invalid magic number: %s' % field)
+
+        print 'Byte order changed to littleendian'
+        #Byte order and bit order are not the same
+        BYTEORDER = '<'
 
     if _p: print " + Magic number checkd:", field
 
@@ -126,7 +135,7 @@ def check_unencrypted(field, f=None):
 #func property must refer to validation procedure for that field
 
 fields = [
-        Field(offset=0, pformat='c'*4, func=check_magic_number),
+        Field(offset=0, pformat='I', func=check_magic_number),
         Field(offset=4, pformat='I', func=offset_to_image),
         Field(offset=8, pformat='c'*8, func=check_version),
         Field(offset=16, pformat='I', func=check_filesize),
@@ -161,10 +170,13 @@ for position in fields:
         _ERRORs = 1
         continue
 
-    except error as e:
+    except error as e: #struct.error
         raise DataReadingError("Binary data 'struct.unpack'ing failed: %s" % e)
 
 
 f.close()
+
+#for (x, y) in locals().items(): print x, y
+
 
 exit(_ERRORs)
