@@ -1,2 +1,3 @@
 test:
-	python -m pytest -sv
+	python -m pytest -sv --maxfail=9999 --junitprefix=dpx-validator --junitxml=junit.xml tests
+
