@@ -7,9 +7,9 @@ from dpx_validator.validations import *
 
 
 def test_read_field():
-    q = 9999999*'q'
-    print q
-
+#    q = 9999999*'q'
+#    print q
+    pass
 
 
 def test_check_magic_number():
