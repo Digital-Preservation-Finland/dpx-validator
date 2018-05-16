@@ -5,7 +5,7 @@ from .models import Field, ValidationError, DataReadingError
 from .validations import *
 
 
-fields = [
+validated_fields = [
     Field(offset=0, pformat='I', func=check_magic_number),
     Field(offset=4, pformat='I', func=offset_to_image),
     Field(offset=8, pformat='c'*8, func=check_version),
@@ -23,13 +23,13 @@ def main():
     RETURNCODE = 0
 
     path = sys.argv[1]
-    handle = open(path, "r")
+    file_handle = open(path, "r")
 
-    for position in fields:
+    for position in validated_fields:
 
         try:
-            field = read_field(handle, position)
-            position.func(field, f=handle, path=path)
+            field = read_field(file_handle, position)
+            position.func(field, file_handle=file_handle, path=path)
 
         except ValidationError as e:
             sys.stderr.write(str(e)+'\n')
@@ -40,7 +40,7 @@ def main():
             raise DataReadingError(
                 "Binary data 'struct.unpack'ing failed: %s" % e)
 
-    handle.close()
+    file_handle.close()
 
     # Message to standard output stream
     if RETURNCODE == 0:

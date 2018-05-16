@@ -7,7 +7,9 @@ Functions get in 'field' variable data from a section
 in header for validation. Any other variables are
 defined in **kwargs and are shared by every function
 The section and the validation function are defined,
-connected, on 'Field' class.
+connected, on 'Field' class. Validation errors raise
+ValidationError exception, successful validations do
+not return anything (except None).
 
 """
 
@@ -21,13 +23,13 @@ from .models import ValidationError
 BYTEORDER = ">"
 
 
-def read_field(f, field):
+def read_field(file_handle, field):
     """The byte reading procedure for a section in a file"""
 
-    f.seek(field.offset)
+    file_handle.seek(field.offset)
     length = calcsize(field.pformat)
 
-    a = bytearray(f.read(length))
+    a = bytearray(file_handle.read(length))
 
     global BYTEORDER
     data = unpack(BYTEORDER+field.pformat, a)
@@ -79,7 +81,7 @@ def check_version(field, **kwargs):
 
     field = bytearray(field).rsplit('\0')[0]
 
-    if not field == bytearray(['V', '2', '.', '0']):
+    if not str(field) == 'V2.0':
         raise ValidationError("Invalid header version %s" % str(field))
 
 

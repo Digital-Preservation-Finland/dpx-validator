@@ -1,6 +1,7 @@
 import pytest
 from subprocess import check_call, CalledProcessError
 
+
 @pytest.mark.parametrize("testfile,returncode", [
     ('tests/data/valid_dpx.dpx', 0),
     ('tests/data/corrupted_dpx.dpx', 1),
