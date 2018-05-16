@@ -4,5 +4,5 @@ setup(name="dpxv",
       version="0.1",
       packages=find_packages(),
       entry_points={'console_scripts':
-          ["dpxv=dpxv.dpxv:main"]}
+          ["dpxv=dpx_validator.dpxv:main"]}
 )
