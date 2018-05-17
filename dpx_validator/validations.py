@@ -19,25 +19,32 @@ from struct import unpack, calcsize
 from dpx_validator.models import ValidationError
 
 
-# Bigendian byte order by default
+# Bigendian byte order by default for struct.unpack
 BYTEORDER = ">"
+
+
+def littleendian_byteorder():
+    """Change byte order interpretation to littleendian"""
+
+    global BYTEORDER
+    BYTEORDER = "<"
+
+    print 'Byte order changed to littleendian'
 
 
 def read_field(file_handle, field):
     """The byte reading procedure for a section in a file"""
 
     file_handle.seek(field.offset)
-    length = calcsize(field.pformat)
+    length = calcsize(field.data_form)
 
-    a = bytearray(file_handle.read(length))
+    data = file_handle.read(length)
+    unpacked = unpack(BYTEORDER+field.data_form, data)
 
-    global BYTEORDER
-    data = unpack(BYTEORDER+field.pformat, a)
+    if len(unpacked) == 1:
+        return unpacked[0]
 
-    if len(data) == 1:
-        return data[0]
-
-    return data
+    return unpacked
 
 
 def check_magic_number(field, **kwargs):
@@ -48,7 +55,6 @@ def check_magic_number(field, **kwargs):
 
     """
 
-    global BYTEORDER
     validate_by = unpack(BYTEORDER+'I', 'SDPX')[0]
 
     if not field == validate_by:
@@ -59,8 +65,7 @@ def check_magic_number(field, **kwargs):
             raise ValidationError('Invalid magic number: %s' % field)
 
         # Byte order and bit order are not the same
-        print 'Byte order changed to littleendian'
-        BYTEORDER = '<'
+        littleendian_byteorder()
 
 
 def offset_to_image(field, **kwargs):

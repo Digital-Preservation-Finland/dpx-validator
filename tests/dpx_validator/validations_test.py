@@ -21,7 +21,7 @@ def test_read_field(tmpdir, offset, format, valid):
     test_handle = open(test_file.strpath, 'r')
 
     # c = q, b = 113 ...
-    position = Field(offset=offset, pformat=format, func=None)
+    position = Field(offset=offset, data_form=format, func=None)
 
     if not valid:
         with pytest.raises(error):
