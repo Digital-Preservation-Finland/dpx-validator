@@ -1,15 +1,34 @@
-from struct import unpack, pack
+from struct import unpack, pack, error
 
 import pytest
 
-from dpx_validator.models import ValidationError
+from dpx_validator.models import ValidationError, Field
 from dpx_validator.validations import *
 
 
-def test_read_field():
-#    q = 9999999*'q'
-#    print q
-    pass
+@pytest.mark.parametrize("offset,valid", [
+    (0, True),
+    (1, False)
+])
+def test_read_field(tmpdir, offset, valid):
+
+    test_data = 'q'
+    test_file = tmpdir.join('test_data')
+
+    test_file.write_binary(test_data, ensure=True)
+
+    # c = q, b = 113 ...
+    position = Field(offset=offset, pformat='c', func=None)
+    test_handle = open(test_file.strpath, 'r')
+
+    if not valid:
+        with pytest.raises(error):
+            read_field(test_handle, position)
+
+    else:
+        assert read_field(test_handle, position) is 'q'
+
+    test_handle.close()
 
 
 def test_check_magic_number():
