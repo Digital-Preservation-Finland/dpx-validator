@@ -65,9 +65,7 @@ def check_magic_number(field, **kwargs):
 
 def offset_to_image(field, **kwargs):
     """Offset to image data defined in header should
-    not be greater than actual size of the file.
-
-    """
+    not be greater than actual size of the file."""
 
     size = os.stat(kwargs['path']).st_size
 
@@ -87,9 +85,7 @@ def check_version(field, **kwargs):
 
 def check_filesize(field, **kwargs):
     """File size defined in header should match to what
-    for example file system says.
-
-    """
+    for example file system says."""
 
     size = os.stat(kwargs['path']).st_size
 

@@ -109,4 +109,11 @@ def test_check_filesize(tmpdir):
 
 
 def test_check_unencrypted():
-    pass
+
+    # 0xffffffff
+    unencrypted = 4294967295
+
+    with pytest.raises(ValidationError):
+        check_unencrypted(1)
+
+    assert check_unencrypted(unencrypted) is None
