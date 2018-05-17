@@ -1,8 +1,9 @@
 import sys
+from os.path import abspath
 from struct import error
 
-from .models import Field, ValidationError, DataReadingError
-from .validations import *
+from dpx_validator.models import Field, ValidationError, DataReadingError
+from dpx_validator.validations import *
 
 
 validated_fields = [
@@ -44,7 +45,7 @@ def main():
 
     # Message to standard output stream
     if RETURNCODE == 0:
-        print 'File %s is valid. Br, dpx validator' % path
+        print 'File %s is valid. Br, dpx validator' % abspath(path)
 
     exit(RETURNCODE)
 

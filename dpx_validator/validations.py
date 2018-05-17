@@ -16,7 +16,7 @@ not return anything (except None).
 import os
 from struct import unpack, calcsize
 
-from .models import ValidationError
+from dpx_validator.models import ValidationError
 
 
 # Bigendian byte order by default
