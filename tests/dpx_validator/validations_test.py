@@ -31,8 +31,21 @@ def test_read_field(tmpdir, offset, valid):
     test_handle.close()
 
 
-def test_check_magic_number():
-    pass
+@pytest.mark.parametrize("data,valid", [
+    ("SDPX", True),
+    ("XPDS", True),
+    ("fals", False)
+])
+def test_check_magic_number(data, valid):
+
+    data = unpack(BYTEORDER+'I', data)[0]
+
+    if not valid:
+        with pytest.raises(ValidationError):
+            check_magic_number(data)
+
+    else:
+        assert check_magic_number(data) is None
 
 
 def test_offset_to_image():
