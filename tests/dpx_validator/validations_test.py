@@ -6,20 +6,22 @@ from dpx_validator.models import ValidationError, Field
 from dpx_validator.validations import *
 
 
-@pytest.mark.parametrize("offset,valid", [
-    (0, True),
-    (1, False)
+@pytest.mark.parametrize("offset,format,valid", [
+    (0, 'c', True),
+    (1, 'c', False),
+    (0, 'I', False),
 ])
-def test_read_field(tmpdir, offset, valid):
+def test_read_field(tmpdir, offset, format, valid):
+    """asd"""
 
     test_data = 'q'
     test_file = tmpdir.join('test_data')
-
     test_file.write_binary(test_data, ensure=True)
 
-    # c = q, b = 113 ...
-    position = Field(offset=offset, pformat='c', func=None)
     test_handle = open(test_file.strpath, 'r')
+
+    # c = q, b = 113 ...
+    position = Field(offset=offset, pformat=format, func=None)
 
     if not valid:
         with pytest.raises(error):
@@ -48,9 +50,22 @@ def test_check_magic_number(data, valid):
         assert check_magic_number(data) is None
 
 
-def test_offset_to_image():
-    pass
+def test_offset_to_image(tmpdir):
 
+    test_data = 'q'
+    test_file = tmpdir.join('test_data')
+    test_file.write_binary(test_data, ensure=True)
+
+    test_handle = open(test_file.strpath, 'r')
+
+    filesize = os.stat(test_file.strpath).st_size
+
+    with pytest.raises(ValidationError):
+        offset_to_image(filesize+1, path=test_file.strpath)
+
+    assert check_filesize(filesize, path=test_file.strpath) is None
+
+    test_handle.close()
 
 @pytest.mark.parametrize("data,valid", [
     ("V2.0\0  y", True),
@@ -75,8 +90,22 @@ def test_check_version(data, valid):
         assert check_version(data) is None
 
 
-def test_check_filesize():
-    pass
+def test_check_filesize(tmpdir):
+
+    test_data = 'q'
+    test_file = tmpdir.join('test_data')
+    test_file.write_binary(test_data, ensure=True)
+
+    test_handle = open(test_file.strpath, 'r')
+
+    filesize = os.stat(test_file.strpath).st_size
+
+    with pytest.raises(ValidationError):
+        check_filesize(filesize+1, path=test_file.strpath)
+
+    assert check_filesize(filesize, path=test_file.strpath) is None
+
+    test_handle.close()
 
 
 def test_check_unencrypted():
