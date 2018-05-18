@@ -1,3 +1,4 @@
+import sys
 from os.path import abspath
 
 from dpx_validator.models import Field, ValidationError, returncode

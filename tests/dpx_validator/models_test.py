@@ -13,5 +13,5 @@ def test_validation_error(capsys):
 
     ValidationError(error_message)
 
-    assert error_message in capsys.readouterr().err
+    assert error_message in capsys.readouterr()[1]
     assert returncode() == 1
