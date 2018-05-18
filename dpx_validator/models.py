@@ -1,6 +1,20 @@
+"""Data structures"""
+
 import sys
 
-"""Data structures"""
+
+RETURNCODE = 0
+
+
+def returncode(*args):
+    """Get or set returncode for the script."""
+
+    global RETURNCODE
+
+    if args:
+        RETURNCODE = args[0]
+
+    return RETURNCODE
 
 
 class Field(object):
@@ -18,9 +32,12 @@ class Field(object):
         self.func = kwargs['func']
 
 
-class ValidationError(Exception):
+class ValidationError(BaseException):
     """Raised when a validation procedure fails"""
 
     def __init__(self, message):
-        """Write error message to stderr"""
+        """Set return code and write error message to stderr"""
+
+        returncode(1)
+
         sys.stderr.write(str(message)+'\n')

@@ -1,4 +1,4 @@
-from struct import unpack, pack, error
+from struct import unpack, pack
 
 import pytest
 
@@ -11,12 +11,14 @@ from dpx_validator.validations import *
     (1, 'c', False),
     (0, 'I', False),
 ])
-def test_read_field(tmpdir, offset, format, valid):
-    """asd"""
+def test_read_field(test_file, offset, format, valid):
+    """Test binary data reading or unpacking
 
-    test_data = 'q'
-    test_file = tmpdir.join('test_data')
-    test_file.write_binary(test_data, ensure=True)
+        #. Read character from file
+        #. Try to read character at index out of file
+        #. Try to read bytes that go past the EOF
+
+    """
 
     test_handle = open(test_file.strpath, 'r')
 
@@ -24,7 +26,7 @@ def test_read_field(tmpdir, offset, format, valid):
     position = Field(offset=offset, data_form=format, func=None)
 
     if not valid:
-        with pytest.raises(error):
+        with pytest.raises(ValidationError):
             read_field(test_handle, position)
 
     else:
@@ -39,6 +41,7 @@ def test_read_field(tmpdir, offset, format, valid):
     ("fals", False)
 ])
 def test_check_magic_number(data, valid):
+    """Test magic number is validated as 'SDPX' or 'XDPS'."""
 
     data = unpack(BYTEORDER+'I', data)[0]
 
@@ -50,11 +53,7 @@ def test_check_magic_number(data, valid):
         assert check_magic_number(data) is None
 
 
-def test_offset_to_image(tmpdir):
-
-    test_data = 'q'
-    test_file = tmpdir.join('test_data')
-    test_file.write_binary(test_data, ensure=True)
+def test_offset_to_image(test_file):
 
     test_handle = open(test_file.strpath, 'r')
 
@@ -63,21 +62,22 @@ def test_offset_to_image(tmpdir):
     with pytest.raises(ValidationError):
         offset_to_image(filesize+1, path=test_file.strpath)
 
-    assert check_filesize(filesize, path=test_file.strpath) is None
+    assert offset_to_image(filesize, path=test_file.strpath) is None
 
     test_handle.close()
 
+
 @pytest.mark.parametrize("data,valid", [
     ("V2.0\0  y", True),
-    ("V2.0   .    ", False)
+    ("V2.0  - ", False)
 ])
 def test_check_version(data, valid):
- 
+    """Test the 8 bytes field is null terminated 'V2.0'."""
+
     field_length = len(data)
     byteorder = '>'  # big endian
 
     unpacked = unpack(byteorder+('c'*field_length), data)
-
     chars = bytearray(unpacked).rstrip('\0')
 
     # Validation error raises exception,
@@ -90,11 +90,7 @@ def test_check_version(data, valid):
         assert check_version(data) is None
 
 
-def test_check_filesize(tmpdir):
-
-    test_data = 'q'
-    test_file = tmpdir.join('test_data')
-    test_file.write_binary(test_data, ensure=True)
+def test_check_filesize(test_file):
 
     test_handle = open(test_file.strpath, 'r')
 
@@ -109,6 +105,7 @@ def test_check_filesize(tmpdir):
 
 
 def test_check_unencrypted():
+    """Pass only undefined (0xffffffff) encryption key."""
 
     # 0xffffffff
     unencrypted = 4294967295

@@ -1,8 +1,6 @@
-import sys
 from os.path import abspath
-from struct import error
 
-from dpx_validator.models import Field, ValidationError
+from dpx_validator.models import Field, ValidationError, returncode
 from dpx_validator.validations import *
 
 
@@ -17,8 +15,6 @@ validated_fields = [
 
 def main():
 
-    RETURNCODE = 0
-
     path = sys.argv[1]
     file_handle = open(path, "r")
 
@@ -28,17 +24,19 @@ def main():
             field = read_field(file_handle, position)
             position.func(field, file_handle=file_handle, path=path)
 
-        except (ValidationError, error) as e:
-            RETURNCODE = 1
+        except ValidationError as e:
             continue
+
+        except BaseException as e:
+            ValidationError(e)
 
     file_handle.close()
 
     # Message to standard output stream
-    if RETURNCODE == 0:
+    if returncode() == 0:
         print 'File %s is valid. Br, dpx validator' % abspath(path)
 
-    exit(RETURNCODE)
+    exit(returncode())
 
 
 if len(sys.argv) < 2:

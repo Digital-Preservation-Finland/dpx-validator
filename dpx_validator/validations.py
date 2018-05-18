@@ -14,7 +14,7 @@ not return anything (except None).
 """
 
 import os
-from struct import unpack, calcsize
+from struct import unpack, calcsize, error
 
 from dpx_validator.models import ValidationError
 
@@ -35,11 +35,16 @@ def littleendian_byteorder():
 def read_field(file_handle, field):
     """The byte reading procedure for a section in a file"""
 
-    file_handle.seek(field.offset)
     length = calcsize(field.data_form)
 
+    file_handle.seek(field.offset)
     data = file_handle.read(length)
-    unpacked = unpack(BYTEORDER+field.data_form, data)
+
+    try:
+        unpacked = unpack(BYTEORDER+field.data_form, data)
+
+    except error as e:
+        raise ValidationError(e)
 
     if len(unpacked) == 1:
         return unpacked[0]
@@ -72,15 +77,15 @@ def offset_to_image(field, **kwargs):
     """Offset to image data defined in header should
     not be greater than actual size of the file."""
 
-    size = os.stat(kwargs['path']).st_size
+    filesize = os.stat(kwargs['path']).st_size
 
-    if field > size:
+    if field > filesize:
         raise ValidationError(
-            'Offset to image %s is more file size %s ' % (field, size))
+            'Offset to image %s is more file size %s ' % (field, filesize))
 
 
 def check_version(field, **kwargs):
-    """DPX version should be 'V2.0'."""
+    """DPX version should be null terminated 'V1.0'."""
 
     field = bytearray(field).rsplit('\0')[0]
 
@@ -92,12 +97,12 @@ def check_filesize(field, **kwargs):
     """File size defined in header should match to what
     for example file system says."""
 
-    size = os.stat(kwargs['path']).st_size
+    filesize = os.stat(kwargs['path']).st_size
 
-    if not field == size:
+    if not field == filesize:
         raise ValidationError(
             "File size in header (%s) differs"
-            "from filesystem size %s" % (str(field), size))
+            "from filesystem size %s" % (str(field), filesize))
 
 
 def check_unencrypted(field, **kwargs):
