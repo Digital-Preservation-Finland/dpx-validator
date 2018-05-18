@@ -1,7 +1,21 @@
 Python DPX validator
 ====================
 
-This script validates a set of header binary fields in DPX file
+This script validates a set of header fields in a DPX file.
+
+
+Usage
+-----
+
+Install with setuptools:
+
+        ``python setup.py install``
+
+Run validator:
+
+        ``dpxv <path-to-dpx-file>``
+
+Return values are 0 for valid file, 1 for invalid file and 2 for missing file. Validation errors are printed to standard error stream.
 
 
 Validated fields
@@ -11,24 +25,24 @@ These fields from specification are validated:
 
 
 Field 1
-        Magic number as 'SPDX'
+        Magic number of 'SPDX' or 'XDPS' for reversed byte order.
 
 Field 2
-        Valid image data offset value
+        A valid image data offset value.
 
 Field 3
-        Header format version number as 'V2.0'
+        Header format version number as 'V2.0'.
 
 Field 4
-        DPX file size matches what filesystem gives
+        DPX file size in header matches what filesystem shows.
 
 Field 15
-        Image is unecrypted
+        Encryption key is undefined and therefore image is unencrypted.
 
 
-Format strings
+Format characters
 --------------
 
-`Format strings`_  defines form into which binary data is read.
+`Format characters`_  define form into which binary data is read from a header field.
 
-.. _`Format strings`: https://docs.python.org/2/library/struct.html#format-characters
+.. _`Format characters`: https://docs.python.org/2/library/struct.html#format-characters

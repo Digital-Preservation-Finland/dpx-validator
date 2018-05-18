@@ -42,7 +42,7 @@ def main():
 
 if len(sys.argv) < 2:
     print 'USAGE: dpxv FILENAME'
-    exit()
+    exit(2)
 
 if __name__ == '__main__':
     main()
