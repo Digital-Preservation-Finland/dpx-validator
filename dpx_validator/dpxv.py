@@ -20,7 +20,7 @@ def main():
     list for given file. Write any validation errors to stderr and success
     message to stdout.
 
-    :returns: 0 for valid, 1 for invalid or 2 for missing file
+    :returns: 0 for valid file and 1 if validation fails
 
     """
 
@@ -45,7 +45,7 @@ def main():
 
 if len(sys.argv) < 2:
     print 'USAGE:\tdpxv FILENAME'
-    exit(2)
+    exit(1)
 
 if __name__ == '__main__':
     main()

@@ -15,7 +15,7 @@ Run validator:
 
         ``dpxv <path-to-dpx-file>``
 
-Return values are 0 for valid file, 1 for invalid file and 2 for missing file. Validation errors are printed to standard error stream.
+Return values are 0 for valid file and 1 if validation fails. Validation errors are printed to standard error stream.
 
 
 Validated fields
