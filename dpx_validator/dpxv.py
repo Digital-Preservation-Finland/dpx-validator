@@ -5,6 +5,7 @@ from dpx_validator.models import Field, ValidationError, returncode
 from dpx_validator.validations import *
 
 
+# Fields for validation, beginning from the file
 validated_fields = [
     Field(offset=0, data_form='I', func=check_magic_number),
     Field(offset=4, data_form='I', func=offset_to_image),
@@ -15,23 +16,25 @@ validated_fields = [
 
 
 def main():
+    """Loop through `dpx_validator.models.Field` objects in validated_fields
+    list for given file. Write any validation errors to stderr and success
+    message to stdout.
+
+    :returns: 0 for valid, 1 for invalid or 2 for missing file
+
+    """
 
     path = sys.argv[1]
-    file_handle = open(path, "r")
 
-    for position in validated_fields:
+    with open(path, "r") as file_handle:
+        for position in validated_fields:
 
-        try:
-            field = read_field(file_handle, position)
-            position.func(field, file_handle=file_handle, path=path)
+            try:
+                field = read_field(file_handle, position)
+                position.func(field, file_handle=file_handle, path=path)
 
-        except ValidationError as e:
-            continue
-
-        except BaseException as e:
-            ValidationError(e)
-
-    file_handle.close()
+            except ValidationError:
+                continue
 
     # Message to standard output stream
     if returncode() == 0:
@@ -41,7 +44,7 @@ def main():
 
 
 if len(sys.argv) < 2:
-    print 'USAGE: dpxv FILENAME'
+    print 'USAGE:\tdpxv FILENAME'
     exit(2)
 
 if __name__ == '__main__':
