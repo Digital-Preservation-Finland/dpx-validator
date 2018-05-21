@@ -40,11 +40,7 @@ def read_field(file_handle, field):
     file_handle.seek(field.offset)
     data = file_handle.read(length)
 
-    try:
-        unpacked = unpack(BYTEORDER+field.data_form, data)
-
-    except error as e:
-        raise InvalidField(e)
+    unpacked = unpack(BYTEORDER+field.data_form, data)
 
     if len(unpacked) == 1:
         return unpacked[0]

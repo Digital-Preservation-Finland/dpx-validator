@@ -5,7 +5,7 @@ from dpx_validator.models import Field, InvalidField, returncode
 from dpx_validator.validations import *
 
 
-# Fields for validation, beginning from the file
+# Fields for validation, from the beginning of file
 validated_fields = [
     Field(offset=0, data_form='I', func=check_magic_number),
     Field(offset=4, data_form='I', func=offset_to_image),

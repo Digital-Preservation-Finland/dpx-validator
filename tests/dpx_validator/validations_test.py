@@ -1,4 +1,4 @@
-from struct import unpack, pack
+from struct import unpack, pack, error
 
 import pytest
 
@@ -26,7 +26,7 @@ def test_read_field(test_file, offset, format, valid):
     position = Field(offset=offset, data_form=format, func=None)
 
     if not valid:
-        with pytest.raises(InvalidField):
+        with pytest.raises(error):
             read_field(test_handle, position)
 
     else:
