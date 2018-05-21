@@ -8,7 +8,7 @@ in header for validation. Any other variables are
 defined in **kwargs and are shared by every function
 The section and the validation function are defined,
 connected, on 'Field' class. Validation errors raise
-ValidationError exception, successful validations do
+InvalidField exception, successful validations do
 not return anything (except None).
 
 """
@@ -16,7 +16,7 @@ not return anything (except None).
 import os
 from struct import unpack, calcsize, error
 
-from dpx_validator.models import ValidationError
+from dpx_validator.models import Field, InvalidField
 
 
 # Bigendian byte order by default for struct.unpack
@@ -44,7 +44,7 @@ def read_field(file_handle, field):
         unpacked = unpack(BYTEORDER+field.data_form, data)
 
     except error as e:
-        raise ValidationError(e)
+        raise InvalidField(e)
 
     if len(unpacked) == 1:
         return unpacked[0]
@@ -67,7 +67,7 @@ def check_magic_number(field, **kwargs):
         validate_by = unpack(BYTEORDER+'I', 'XPDS')[0]
 
         if not field == validate_by:
-            raise ValidationError('Invalid magic number: %s' % field)
+            raise InvalidField('Invalid magic number: %s' % field)
 
         # Byte order and bit order are not the same
         littleendian_byteorder()
@@ -80,8 +80,8 @@ def offset_to_image(field, **kwargs):
     filesize = os.stat(kwargs['path']).st_size
 
     if field > filesize:
-        raise ValidationError(
-            'Offset to image %s is more file size %s ' % (field, filesize))
+        raise InvalidField(
+            'Offset to image (%s) is more file size (%s) ' % (field, filesize))
 
 
 def check_version(field, **kwargs):
@@ -90,7 +90,7 @@ def check_version(field, **kwargs):
     field = bytearray(field).rsplit('\0')[0]
 
     if not str(field) == 'V2.0':
-        raise ValidationError("Invalid header version %s" % str(field))
+        raise InvalidField("Invalid header version %s" % str(field))
 
 
 def check_filesize(field, **kwargs):
@@ -100,7 +100,7 @@ def check_filesize(field, **kwargs):
     filesize = os.stat(kwargs['path']).st_size
 
     if not field == filesize:
-        raise ValidationError(
+        raise InvalidField(
             "File size in header (%s) differs"
             "from filesystem size %s" % (str(field), filesize))
 
@@ -109,5 +109,5 @@ def check_unencrypted(field, **kwargs):
     """DPX files should be unecrypted."""
 
     if 'fffffff' not in hex(field):
-        raise ValidationError(
-            "Encryption field in header not NULL or undefined")
+        raise InvalidField(
+            "Encryption key in header not set to NULL or undefined")

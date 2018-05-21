@@ -1,7 +1,7 @@
 import sys
 from os.path import abspath
 
-from dpx_validator.models import Field, ValidationError, returncode
+from dpx_validator.models import Field, InvalidField, returncode
 from dpx_validator.validations import *
 
 
@@ -33,7 +33,7 @@ def main():
                 field = read_field(file_handle, position)
                 position.func(field, file_handle=file_handle, path=path)
 
-            except ValidationError:
+            except InvalidField:
                 continue
 
     # Message to standard output stream

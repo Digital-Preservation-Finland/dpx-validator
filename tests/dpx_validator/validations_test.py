@@ -2,7 +2,7 @@ from struct import unpack, pack
 
 import pytest
 
-from dpx_validator.models import ValidationError, Field
+from dpx_validator.models import Field, InvalidField
 from dpx_validator.validations import *
 
 
@@ -26,7 +26,7 @@ def test_read_field(test_file, offset, format, valid):
     position = Field(offset=offset, data_form=format, func=None)
 
     if not valid:
-        with pytest.raises(ValidationError):
+        with pytest.raises(InvalidField):
             read_field(test_handle, position)
 
     else:
@@ -46,7 +46,7 @@ def test_check_magic_number(data, valid):
     data = unpack(BYTEORDER+'I', data)[0]
 
     if not valid:
-        with pytest.raises(ValidationError):
+        with pytest.raises(InvalidField):
             check_magic_number(data)
 
     else:
@@ -59,7 +59,7 @@ def test_offset_to_image(test_file):
 
     filesize = os.stat(test_file.strpath).st_size
 
-    with pytest.raises(ValidationError):
+    with pytest.raises(InvalidField):
         offset_to_image(filesize+1, path=test_file.strpath)
 
     assert offset_to_image(filesize, path=test_file.strpath) is None
@@ -82,7 +82,7 @@ def test_check_version(data, valid):
 
     # Validation error raises exception,
     if not valid:
-        with pytest.raises(ValidationError):
+        with pytest.raises(InvalidField):
             check_version(data)
 
     # Successful validation does not return anything
@@ -96,7 +96,7 @@ def test_check_filesize(test_file):
 
     filesize = os.stat(test_file.strpath).st_size
 
-    with pytest.raises(ValidationError):
+    with pytest.raises(InvalidField):
         check_filesize(filesize+1, path=test_file.strpath)
 
     assert check_filesize(filesize, path=test_file.strpath) is None
@@ -110,7 +110,7 @@ def test_check_unencrypted():
     # 0xffffffff
     unencrypted = 4294967295
 
-    with pytest.raises(ValidationError):
+    with pytest.raises(InvalidField):
         check_unencrypted(1)
 
     assert check_unencrypted(unencrypted) is None

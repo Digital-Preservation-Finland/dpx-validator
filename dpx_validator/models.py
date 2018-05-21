@@ -32,7 +32,7 @@ class Field(object):
         self.func = kwargs['func']
 
 
-class ValidationError(BaseException):
+class InvalidField(Exception):
     """Raised when a validation procedure fails"""
 
     def __init__(self, message):

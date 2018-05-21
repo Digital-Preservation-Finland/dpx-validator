@@ -1,17 +1,17 @@
 import pytest
 
-from dpx_validator.models import returncode, ValidationError
+from dpx_validator.models import returncode, InvalidField
 
 
 def test_validation_error(capsys):
-    """ValidationError should set returncode to 1 and
+    """InvalidField exception should set returncode to 1 and
     write error message to stderr"""
 
-    error_message = "ValidationError should set return code to 1"
+    error_message = "InvalidField exception should set return code to 1"
 
     assert returncode() == 0
 
-    ValidationError(error_message)
+    InvalidField(error_message)
 
     assert error_message in capsys.readouterr()[1]
     assert returncode() == 1
