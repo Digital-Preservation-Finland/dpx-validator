@@ -5,14 +5,14 @@ from dpx_validator.models import Field, InvalidField, returncode
 from dpx_validator.validations import *
 
 
-# Fields for validation, from the beginning of file
-validated_fields = [
+# Generate fields for validation, from the beginning of file
+validated_fields = (x for x in [
     Field(offset=0, data_form='I', func=check_magic_number),
     Field(offset=4, data_form='I', func=offset_to_image),
     Field(offset=8, data_form='c'*8, func=check_version),
     Field(offset=16, data_form='I', func=check_filesize),
     Field(offset=660, data_form='I', func=check_unencrypted)
-]
+])
 
 
 def main():
