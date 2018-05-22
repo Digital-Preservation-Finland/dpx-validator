@@ -17,11 +17,11 @@ def returncode(*args):
     return RETURNCODE
 
 
-class Field(object):
+class Field:
     """Define a binary field to be validated.
 
-    :offset: Starting point of a field from beginning of the file
-    :data_form: Python's Format character of excepted binary data
+    :offset: Starting point of a field from the beginning of file
+    :data_form: Python's Format character(s) of excepted binary data
     :func: The validation function in `dpxv.validations`
 
     """
