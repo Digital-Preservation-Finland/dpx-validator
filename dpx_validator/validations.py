@@ -12,7 +12,6 @@ InvalidField exception, successful validations do
 not return anything (except None).
 
 """
-
 import os
 from struct import unpack, calcsize, error
 
