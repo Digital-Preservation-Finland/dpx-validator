@@ -25,7 +25,7 @@ These fields from specification are validated:
 
 
 Field 1
-        Magic number of 'SPDX' or 'XDPS' for reversed byte order.
+        Magic number of 'SDPX' or 'XPDS' for reversed byte order.
 
 Field 2
         A valid image data offset value.

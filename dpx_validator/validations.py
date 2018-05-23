@@ -48,18 +48,20 @@ def read_field(file_handle, field):
 
 
 def check_magic_number(field, **kwargs):
-    """Magic number should be 'SPDX' or reversed 'XDPS'.
+    """Magic number should be 'SDPX' or reversed 'XPDS'.
 
     As this is the first validation procedure, if validation fails
     attempt byte order flip on the fly to continue process.
 
     """
 
-    validate_by = unpack(BYTEORDER+'I', 'SDPX')[0]
+    # Validate as 'SDPX'
+    validate_by = 1396985944
 
     if not field == validate_by:
 
-        validate_by = unpack(BYTEORDER+'I', 'XPDS')[0]
+        # Validate as 'XPDS'
+        validate_by = 1481655379
 
         if not field == validate_by:
             raise InvalidField('Invalid magic number: %s' % field)
