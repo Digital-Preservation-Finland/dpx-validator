@@ -1,5 +1,5 @@
 import pytest
-from subprocess import check_call, CalledProcessError
+from subprocess import call, check_output
 
 
 @pytest.mark.parametrize("testfile,returncode", [
@@ -10,13 +10,18 @@ from subprocess import check_call, CalledProcessError
 def test_returncode(testfile, returncode):
     """Return code should be 0 on success and 1 on error"""
 
-    try:
-        code = check_call(
-            ['python', '-m', 'dpx_validator.dpxv', testfile],
-            env={'PYTHONPATH': '.'})
+    code = call(
+        ['python', '-m', 'dpx_validator.dpxv', testfile],
+        env={'PYTHONPATH': '.'})
 
-    except CalledProcessError as e:
-        code = e.returncode
+    assert code == returncode
 
-    finally:
-        assert code == returncode
+
+def test_byteorder_switch(littleendian_file):
+    """Return code should be 0 on success and 1 on error"""
+
+    output = check_output(
+        ['python', '-m', 'dpx_validator.dpxv', littleendian_file.strpath],
+        env={'PYTHONPATH': '.'})
+
+    assert 'Byte order changed' in output
