@@ -18,7 +18,7 @@ def littleendian_file(tmpdir):
     """Test files in `tests/data` are supposedly
     written with bigendian byteorder. Attempt here
     to write file with littleendian byteorder.
-    
+
     :returns: littleendian test file header"""
 
     test_file = tmpdir.join('test_data')

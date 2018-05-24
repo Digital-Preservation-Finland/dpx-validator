@@ -36,11 +36,7 @@ def main():
 def validate_file(path):
     """Loop through `dpx_validator.models.Field` objects in validated_fields
     list for given file. Write any validation errors to stderr and success
-    message to stdout.
-
-    :returns: True, if valid
-
-    """
+    message to stdout."""
 
     valid = True
 
@@ -57,8 +53,6 @@ def validate_file(path):
     # Message to standard output stream
     if valid:
         print 'File %s is valid. Br, dpx validator' % abspath(path)
-
-    return valid
 
 
 if __name__ == '__main__':

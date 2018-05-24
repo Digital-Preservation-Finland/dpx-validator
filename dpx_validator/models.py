@@ -27,13 +27,14 @@ class Field:
     """
 
     def __init__(self, **kwargs):
+
         self.offset = kwargs['offset']
         self.data_form = kwargs['data_form']
         self.func = kwargs['func']
 
 
-class InvalidField(Exception):
-    """Raised when a validation procedure fails"""
+class InvalidField:
+    """Used as an exception and raised when a validation procedure fails"""
 
     def __init__(self, message):
         """Set return code and write error message to stderr"""
