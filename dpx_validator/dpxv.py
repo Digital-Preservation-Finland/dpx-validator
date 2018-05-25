@@ -1,8 +1,16 @@
+"""DPXv: DPX file format validator for DPX version 2.0"""
+
 import sys
 from os.path import abspath
 
 from dpx_validator.models import Field, InvalidField, returncode
-from dpx_validator.validations import *
+from dpx_validator.validations import (
+    read_field,
+    check_magic_number,
+    offset_to_image,
+    check_version,
+    check_filesize,
+    check_unencrypted)
 
 
 if len(sys.argv) < 2:
@@ -11,7 +19,7 @@ if len(sys.argv) < 2:
 
 
 # List fields for validation, from the beginning of file
-validated_fields = [
+VALIDATED_FIELDS = [
     Field(offset=0, data_form='I', func=check_magic_number),
     Field(offset=4, data_form='I', func=offset_to_image),
     Field(offset=8, data_form='c'*8, func=check_version),
@@ -41,7 +49,7 @@ def validate_file(path):
     valid = True
 
     with open(path, "r") as file_handle:
-        for position in validated_fields:
+        for position in VALIDATED_FIELDS:
 
             try:
                 field = read_field(file_handle, position)

@@ -1,17 +1,28 @@
-from struct import unpack, pack, error
+"""Tests for validation procdures."""
+
+
+from os import stat
+from struct import unpack, error
 
 import pytest
 
 from dpx_validator.models import Field, InvalidField
-from dpx_validator.validations import *
+from dpx_validator.validations import (
+    BYTEORDER,
+    read_field,
+    check_magic_number,
+    offset_to_image,
+    check_version,
+    check_filesize,
+    check_unencrypted)
 
 
-@pytest.mark.parametrize("offset,format,valid", [
+@pytest.mark.parametrize("offset,data_form,valid", [
     (0, 'c', True),
     (1, 'c', False),
     (0, 'I', False),
 ])
-def test_read_field(test_file, offset, format, valid):
+def test_read_field(test_file, offset, data_form, valid):
     """Test binary data reading or unpacking
 
         #. Read character from file
@@ -23,16 +34,14 @@ def test_read_field(test_file, offset, format, valid):
     test_handle = open(test_file.strpath, 'r')
 
     # c = q, b = 113 ...
-    position = Field(offset=offset, data_form=format, func=None)
+    position = Field(offset=offset, data_form=data_form, func=None)
 
     if not valid:
         with pytest.raises(error):
             read_field(test_handle, position)
 
     else:
-        assert read_field(test_handle, position) is 'q'
-
-    test_handle.close()
+        assert read_field(test_handle, position) == 'q'
 
 
 @pytest.mark.parametrize("data,valid", [
@@ -54,17 +63,14 @@ def test_check_magic_number(data, valid):
 
 
 def test_offset_to_image(test_file):
+    """Offset to image should be some value less than filesize."""
 
-    test_handle = open(test_file.strpath, 'r')
-
-    filesize = os.stat(test_file.strpath).st_size
+    filesize = stat(test_file.strpath).st_size
 
     with pytest.raises(InvalidField):
         offset_to_image(filesize+1, path=test_file.strpath)
 
     assert offset_to_image(filesize, path=test_file.strpath) is None
-
-    test_handle.close()
 
 
 @pytest.mark.parametrize("data,valid", [
@@ -78,7 +84,7 @@ def test_check_version(data, valid):
     byteorder = '>'  # big endian
 
     unpacked = unpack(byteorder+('c'*field_length), data)
-    chars = bytearray(unpacked).rstrip('\0')
+    bytearray(unpacked).rstrip('\0')
 
     # Validation error raises exception,
     if not valid:
@@ -91,17 +97,14 @@ def test_check_version(data, valid):
 
 
 def test_check_filesize(test_file):
+    """Filesize in header should be the same as from filesystem."""
 
-    test_handle = open(test_file.strpath, 'r')
-
-    filesize = os.stat(test_file.strpath).st_size
+    filesize = stat(test_file.strpath).st_size
 
     with pytest.raises(InvalidField):
         check_filesize(filesize+1, path=test_file.strpath)
 
     assert check_filesize(filesize, path=test_file.strpath) is None
-
-    test_handle.close()
 
 
 def test_check_unencrypted():

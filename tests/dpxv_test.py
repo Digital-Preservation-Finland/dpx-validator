@@ -1,5 +1,8 @@
-import pytest
+"""Tests by invoking the program."""
+
 from subprocess import call, check_output
+
+import pytest
 
 
 @pytest.mark.parametrize("testfile,returncode", [

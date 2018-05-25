@@ -1,4 +1,5 @@
-import pytest
+"""Tests for data structures."""
+
 
 from dpx_validator.models import returncode, InvalidField
 

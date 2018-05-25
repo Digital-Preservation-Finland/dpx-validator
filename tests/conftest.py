@@ -1,16 +1,19 @@
-import pytest
+"""Test files"""
 
 from struct import pack, unpack
+
+import pytest
 
 
 @pytest.fixture(scope='function')
 def test_file(tmpdir):
+    """One character ('q') test file"""
 
     test_data = 'q'
-    test_file = tmpdir.join('test_data')
-    test_file.write_binary(test_data, ensure=True)
+    testfile = tmpdir.join('test_data')
+    testfile.write_binary(test_data, ensure=True)
 
-    return test_file
+    return testfile
 
 
 @pytest.fixture(autouse=True)
@@ -21,7 +24,7 @@ def littleendian_file(tmpdir):
 
     :returns: littleendian test file header"""
 
-    test_file = tmpdir.join('test_data')
+    testfile = tmpdir.join('test_data')
 
     # Write/pack bigendian 'SDPX' with littleendian byteorder
     field1 = bytearray(pack('<I', 1396985944))
@@ -35,8 +38,8 @@ def littleendian_file(tmpdir):
     field15 = bytearray([255 for _ in xrange(offset_to_image)])
 
     data = bytearray().join([field1, field2, field3, field4, field15])
-    test_file.write_binary(data, ensure=True)
+    testfile.write_binary(data, ensure=True)
 
-    assert test_file.size() > offset_to_image
+    assert testfile.size() > offset_to_image
 
-    return test_file
+    return testfile
