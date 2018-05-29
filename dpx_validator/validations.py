@@ -13,7 +13,7 @@ not return anything (except None).
 
 """
 import os
-from struct import unpack, calcsize, error
+from struct import unpack, calcsize
 
 from dpx_validator.models import Field, InvalidField
 

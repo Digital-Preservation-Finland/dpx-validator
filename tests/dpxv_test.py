@@ -6,9 +6,7 @@ import pytest
 
 
 @pytest.mark.parametrize("testfile,returncode", [
-    ('tests/data/valid_dpx.dpx', 0),
-    ('tests/data/corrupted_dpx.dpx', 1),
-    ('tests/data/empty_file.dpx', 1)
+    ('tests/data/valid_dpx.dpx', 0)
 ])
 def test_returncode(testfile, returncode):
     """Return code should be 0 on success and 1 on error"""

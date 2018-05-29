@@ -3,7 +3,7 @@
 import sys
 from os.path import abspath
 
-from dpx_validator.models import Field, InvalidField, returncode
+from dpx_validator.models import Field, InvalidField
 from dpx_validator.validations import (
     read_field,
     check_magic_number,
@@ -37,8 +37,6 @@ def main():
 
     for dpx_file in sys.argv[1:]:
         validate_file(dpx_file)
-
-    exit(returncode())
 
 
 def validate_file(path):

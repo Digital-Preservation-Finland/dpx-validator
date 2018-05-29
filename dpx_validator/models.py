@@ -3,20 +3,6 @@
 import sys
 
 
-RETURNCODE = 0
-
-
-def returncode(*args):
-    """Get or set returncode for the script."""
-
-    global RETURNCODE
-
-    if args:
-        RETURNCODE = args[0]
-
-    return RETURNCODE
-
-
 class Field:
     """Define a binary field to be validated.
 
@@ -38,7 +24,5 @@ class InvalidField:
 
     def __init__(self, message):
         """Set return code and write error message to stderr"""
-
-        returncode(1)
 
         sys.stderr.write(str(message)+'\n')
