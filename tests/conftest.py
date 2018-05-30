@@ -43,11 +43,3 @@ def littleendian_file(tmpdir):
     assert testfile.size() > offset_to_image
 
     return testfile
-
-
-@pytest.fixture(scope='function')
-def kwdummy():
-    """Dummy kwargs."""
-
-    return {'file_handle': None,
-            'path': 'test'}
