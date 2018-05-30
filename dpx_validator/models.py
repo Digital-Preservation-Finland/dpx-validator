@@ -19,10 +19,27 @@ class Field:
         self.func = kwargs['func']
 
 
+def form_exception_string(message, file_identifier):
+
+    form = [
+        str(file_identifier),
+        ': ',
+        str(message),
+        '\n']
+
+    return ''.join(form)
+
+
 class InvalidField:
     """Used as an exception and raised when a validation procedure fails"""
 
-    def __init__(self, message):
+    def __init__(self, message, file_identifier):
         """Set return code and write error message to stderr"""
 
-        sys.stderr.write(str(message)+'\n')
+        sys.stderr.write(
+            form_exception_string(
+                message, file_identifier))
+
+
+class EmptyFile(InvalidField):
+    pass

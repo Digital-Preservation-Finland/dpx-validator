@@ -56,7 +56,7 @@ def test_check_magic_number(data, valid):
 
     if not valid:
         with pytest.raises(InvalidField):
-            check_magic_number(data)
+            check_magic_number(data, path='test')
 
     else:
         assert check_magic_number(data) is None
@@ -89,7 +89,7 @@ def test_check_version(data, valid):
     # Validation error raises exception,
     if not valid:
         with pytest.raises(InvalidField):
-            check_version(data)
+            check_version(data, path='test')
 
     # Successful validation does not return anything
     else:
@@ -114,6 +114,6 @@ def test_check_unencrypted():
     unencrypted = 4294967295
 
     with pytest.raises(InvalidField):
-        check_unencrypted(1)
+        check_unencrypted(1, path='test')
 
     assert check_unencrypted(unencrypted) is None

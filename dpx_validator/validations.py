@@ -15,7 +15,7 @@ not return anything (except None).
 from os import stat
 from struct import unpack, calcsize
 
-from dpx_validator.models import Field, InvalidField
+from dpx_validator.models import Field, InvalidField, EmptyFile
 
 
 # Bigendian byte order by default for struct.unpack
@@ -33,9 +33,6 @@ def littleendian_byteorder():
 
 def read_field(file_handle, field):
     """The byte reading procedure for a section in a file"""
-
-    if not stat(file_handle.name).st_size > 0:
-        raise InvalidField("Empty file")
 
     length = calcsize(field.data_form)
 
@@ -67,7 +64,8 @@ def check_magic_number(field, **kwargs):
         validate_by = 1481655379
 
         if not field == validate_by:
-            raise InvalidField('Invalid magic number: %s' % field)
+            raise InvalidField(
+                'Invalid magic number: %s' % field, kwargs["path"])
 
         # Byte order and bit order are not the same
         littleendian_byteorder()
@@ -81,7 +79,9 @@ def offset_to_image(field, **kwargs):
 
     if field > filesize:
         raise InvalidField(
-            'Offset to image (%s) is more file size (%s) ' % (field, filesize))
+            'Offset to image (%s) is more'
+            'file size (%s) ' % (field, filesize),
+            kwargs["path"])
 
 
 def check_version(field, **kwargs):
@@ -90,7 +90,8 @@ def check_version(field, **kwargs):
     field = bytearray(field).rsplit('\0')[0]
 
     if not str(field) == 'V2.0':
-        raise InvalidField("Invalid header version %s" % str(field))
+        raise InvalidField(
+            "Invalid header version %s" % str(field), kwargs["path"])
 
 
 def check_filesize(field, **kwargs):
@@ -102,7 +103,7 @@ def check_filesize(field, **kwargs):
     if not field == filesize:
         raise InvalidField(
             "File size in header (%s) differs"
-            "from filesystem size %s" % (str(field), filesize))
+            "from filesystem size %s" % (str(field), filesize), kwargs["path"])
 
 
 def check_unencrypted(field, **kwargs):
@@ -110,4 +111,5 @@ def check_unencrypted(field, **kwargs):
 
     if 'fffffff' not in hex(field):
         raise InvalidField(
-            "Encryption key in header not set to NULL or undefined")
+            "Encryption key in header not"
+            "set to NULL or undefined", kwargs["path"])

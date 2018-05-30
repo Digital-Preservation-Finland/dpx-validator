@@ -1,9 +1,9 @@
 """DPXv: DPX file format validator for DPX version 2.0"""
 
 import sys
-from os.path import abspath
+from os import stat
 
-from dpx_validator.models import Field, InvalidField
+from dpx_validator.models import Field, InvalidField, EmptyFile
 from dpx_validator.validations import (
     read_field,
     check_magic_number,
@@ -47,18 +47,25 @@ def validate_file(path):
     valid = True
 
     with open(path, "r") as file_handle:
-        for position in VALIDATED_FIELDS:
 
-            try:
-                field = read_field(file_handle, position)
-                position.func(field, file_handle=file_handle, path=path)
+        if stat(file_handle.name).st_size:
 
-            except InvalidField:
-                valid = False
+            for position in VALIDATED_FIELDS:
+
+                try:
+                    field = read_field(file_handle, position)
+                    position.func(field, file_handle=file_handle, path=path)
+
+                except InvalidField:
+                    valid = False
+
+        else:
+            valid = False
+            EmptyFile("File is empty", file_handle.name)
 
     # Message to standard output stream
     if valid:
-        print 'File %s is valid. Br, dpx validator' % abspath(path)
+        print 'File %s is valid' % path
 
 
 if __name__ == '__main__':
