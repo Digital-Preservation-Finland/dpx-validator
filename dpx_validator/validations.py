@@ -12,7 +12,7 @@ InvalidField exception, successful validations do
 not return anything (except None).
 
 """
-import os
+from os import stat
 from struct import unpack, calcsize
 
 from dpx_validator.models import Field, InvalidField
@@ -33,6 +33,9 @@ def littleendian_byteorder():
 
 def read_field(file_handle, field):
     """The byte reading procedure for a section in a file"""
+
+    if not stat(file_handle.name).st_size > 0:
+        raise InvalidField("Empty file")
 
     length = calcsize(field.data_form)
 
@@ -74,7 +77,7 @@ def offset_to_image(field, **kwargs):
     """Offset to image data defined in header should
     not be greater than actual size of the file."""
 
-    filesize = os.stat(kwargs['path']).st_size
+    filesize = stat(kwargs['path']).st_size
 
     if field > filesize:
         raise InvalidField(
@@ -94,7 +97,7 @@ def check_filesize(field, **kwargs):
     """File size defined in header should match to what
     for example file system says."""
 
-    filesize = os.stat(kwargs['path']).st_size
+    filesize = stat(kwargs['path']).st_size
 
     if not field == filesize:
         raise InvalidField(
