@@ -17,6 +17,17 @@ def test_file(tmpdir):
 
 
 @pytest.fixture(scope='function')
+def test_file_oob(tmpdir):
+    """Two characters ('qq') test file"""
+
+    test_data = 'qq'
+    testfile = tmpdir.join('test_data_oob')
+    testfile.write_binary(test_data, ensure=True)
+
+    return testfile
+
+
+@pytest.fixture(scope='function')
 def littleendian_file(tmpdir):
     """Test files in `tests/data` are supposedly
     written with bigendian byteorder. Attempt here

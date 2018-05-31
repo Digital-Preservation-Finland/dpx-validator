@@ -12,7 +12,6 @@ InvalidField exception, successful validations do
 not return anything (except None).
 
 """
-from os import stat
 from struct import unpack, calcsize
 
 from dpx_validator.models import InvalidField
@@ -75,12 +74,10 @@ def offset_to_image(field, **kwargs):
     """Offset to image data defined in header should
     not be greater than actual size of the file."""
 
-    filesize = stat(kwargs['path']).st_size
-
-    if field > filesize:
+    if field > kwargs['stat'].st_size:
         raise InvalidField(
-            'Offset to image (%s) is more'
-            'file size (%s) ' % (field, filesize),
+            'Offset to image (%s) is more than '
+            'file size (%s) ' % (field, kwargs['stat'].st_size),
             kwargs["path"])
 
 
@@ -98,12 +95,11 @@ def check_filesize(field, **kwargs):
     """File size defined in header should match to what
     for example file system says."""
 
-    filesize = stat(kwargs['path']).st_size
-
-    if not field == filesize:
+    if not field == kwargs['stat'].st_size:
         raise InvalidField(
             "File size in header (%s) differs "
-            "from filesystem size %s" % (str(field), filesize), kwargs["path"])
+            "from filesystem size %s" % (str(field), kwargs['stat'].st_size),
+            kwargs["path"])
 
 
 def check_unencrypted(field, **kwargs):

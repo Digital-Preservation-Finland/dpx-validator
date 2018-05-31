@@ -59,7 +59,11 @@ def validate_file(path):
 
             try:
                 field = read_field(file_handle, position)
-                position.func(field, file_handle=file_handle, path=path)
+                position.func(
+                    field,
+                    file_handle=file_handle,
+                    path=path,
+                    stat=file_stat)
 
             except InvalidField:
                 valid = False

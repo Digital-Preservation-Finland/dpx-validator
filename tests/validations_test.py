@@ -62,15 +62,23 @@ def test_check_magic_number(data, valid):
         assert check_magic_number(data) is None
 
 
-def test_offset_to_image(test_file):
-    """Offset to image should be some value less than filesize."""
+def test_offset_to_image(test_file, test_file_oob):
+    """Offset to image should be some value less than filesize.
+    Trick validation procedure with two different different files."""
 
-    filesize = stat(test_file.strpath).st_size
+    file_stat = stat(test_file.strpath)
+    out_of_bounds_stat = stat(test_file_oob.strpath)
 
     with pytest.raises(InvalidField):
-        offset_to_image(filesize+1, path=test_file.strpath)
+        offset_to_image(
+            out_of_bounds_stat.st_size,
+            path=test_file.strpath,
+            stat=file_stat)
 
-    assert offset_to_image(filesize, path=test_file.strpath) is None
+    assert offset_to_image(
+        file_stat.st_size,
+        path=test_file.strpath,
+        stat=file_stat) is None
 
 
 @pytest.mark.parametrize("data,valid", [
@@ -96,19 +104,27 @@ def test_check_version(data, valid):
         assert check_version(data) is None
 
 
-def test_check_filesize(test_file):
-    """Filesize in header should be the same as from filesystem."""
+def test_check_filesize(test_file, test_file_oob):
+    """Filesize in header should be the same as from filesystem.
+    Trick validation procedure with two different different files."""
 
-    filesize = stat(test_file.strpath).st_size
+    file_stat = stat(test_file.strpath)
+    out_of_bounds_stat = stat(test_file_oob.strpath)
 
     with pytest.raises(InvalidField):
-        check_filesize(filesize+1, path=test_file.strpath)
+        check_filesize(
+            out_of_bounds_stat.st_size,
+            path=test_file.strpath,
+            stat=file_stat)
 
-    assert check_filesize(filesize, path=test_file.strpath) is None
+    assert check_filesize(
+        file_stat.st_size,
+        path=test_file.strpath,
+        stat=file_stat) is None
 
 
 def test_check_unencrypted():
-    """Pass only undefined (0xffffffff) encryption key."""
+    """Test shoul pass only undefined (0xffffffff) encryption key."""
 
     # 0xffffffff
     unencrypted = 4294967295
