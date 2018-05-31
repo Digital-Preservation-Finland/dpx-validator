@@ -4,7 +4,7 @@ import sys
 
 
 class Field:
-    """Define a binary field to be validated.
+    """Define a section from file to extract for validation.
 
     :offset: Starting point of a field from the beginning of file
     :data_form: Python's Format character(s) of excepted binary data
@@ -31,10 +31,10 @@ def form_exception_string(message, file_identifier):
 
 
 class InvalidField:
-    """Used as an exception and raised when a validation procedure fails"""
+    """Used as an exception and raised when a validation procedure fails."""
 
     def __init__(self, message, file_identifier):
-        """Set return code and write error message to stderr"""
+        """Write error message to stderr at raise."""
 
         sys.stderr.write(
             form_exception_string(

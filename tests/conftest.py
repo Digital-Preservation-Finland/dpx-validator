@@ -30,14 +30,14 @@ def test_file_oob(tmpdir):
 @pytest.fixture(scope='function')
 def littleendian_file(tmpdir):
     """Test files in `tests/data` are supposedly
-    written with bigendian byteorder. Attempt here
-    to write file with littleendian byteorder.
+    written with bigendian byte order. Attempt here
+    to write file with littleendian byte order.
 
     :returns: littleendian test file header"""
 
     testfile = tmpdir.join('test_data')
 
-    # Write/pack bigendian 'SDPX' with littleendian byteorder
+    # Write/pack bigendian 'SDPX' with little endian byte order
     field1 = bytearray(pack('<I', 1396985944))
 
     field2 = bytearray(pack('<I', 20))

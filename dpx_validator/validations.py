@@ -1,15 +1,18 @@
 """Validation procedures
 
 Functions defined in this file are used to validate
-various fields in a header.
+various fields in a DPX file header.
 
-Functions get in 'field' variable data from a section
-in header for validation. Any other variables are
-defined in **kwargs and are shared by every function
-The section and the validation function are defined,
-connected, on 'Field' class. Validation errors raise
-InvalidField exception, successful validations do
-not return anything (except None).
+A field in header and a validation procedure for the field
+are defined on `dpx_validator.models.Field` class.
+
+Functions get in 'field' variable with data from a section
+in header for validation. Any other data are
+defined in **kwargs and are shared by every function.
+
+Invalid fields in header raise InvalidField exceptions
+and error messages are written to stderr. If all header
+fields are valid, success message is written to stdout.
 
 """
 from struct import unpack, calcsize
@@ -31,7 +34,7 @@ def littleendian_byteorder():
 
 
 def read_field(file_handle, field):
-    """The byte reading procedure for a section in a file"""
+    """The byte reading procedure for a section in a file."""
 
     length = calcsize(field.data_form)
 
@@ -47,10 +50,10 @@ def read_field(file_handle, field):
 
 
 def check_magic_number(field, **kwargs):
-    """Magic number should be 'SDPX' or reversed 'XPDS'.
+    """Magic number should be integer of 'SDPX' or 'XPDS'.
 
     As this is the first validation procedure, if validation fails
-    attempt byte order flip on the fly to continue process.
+    attempt byte order flip on the fly.
 
     """
 
@@ -82,7 +85,7 @@ def offset_to_image(field, **kwargs):
 
 
 def check_version(field, **kwargs):
-    """DPX version should be null terminated 'V1.0'."""
+    """DPX version should be null terminated 'V2.0'."""
 
     field = bytearray(field).rsplit('\0')[0]
 
@@ -92,8 +95,8 @@ def check_version(field, **kwargs):
 
 
 def check_filesize(field, **kwargs):
-    """File size defined in header should match to what
-    for example file system says."""
+    """Filesize defined in header should match to that
+    what filesystem tells."""
 
     if not field == kwargs['stat'].st_size:
         raise InvalidField(
@@ -103,7 +106,7 @@ def check_filesize(field, **kwargs):
 
 
 def check_unencrypted(field, **kwargs):
-    """DPX files should be unecrypted."""
+    """Encryption key should be undefined and DPX file unencrypted."""
 
     if 'fffffff' not in hex(field):
         raise InvalidField(

@@ -124,7 +124,7 @@ def test_check_filesize(test_file, test_file_oob):
 
 
 def test_check_unencrypted():
-    """Test shoul pass only undefined (0xffffffff) encryption key."""
+    """Test should pass only undefined (0xffffffff) encryption key."""
 
     # 0xffffffff
     unencrypted = 4294967295

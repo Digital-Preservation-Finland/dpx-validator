@@ -42,13 +42,13 @@ def validate_file(path):
     list for given file. Any validation errors are written to standerd error
     stream and success message to standard output stream.
 
-    Validation procedures raise InvalidField exception when encountered invalid
-    field in header section of file. InvalidField exception prints error
-    message to stderr. All of the validation procedures are executed.
+    Validation procedures raise InvalidField exception when invalid field is
+    encountered in header section of file. InvalidField exception prints error
+    message to stderr.
 
     All files are checked for truncation before any of the validations are
     executed. If file truncation has happened, only that information is printed
-    to stderr and next will be validated.
+    to stderr and next file will be validated.
 
     """
 
@@ -56,8 +56,7 @@ def validate_file(path):
     file_stat = stat(path)
 
     if truncated(file_stat.st_size, VALIDATED_FIELDS[-1]):
-        InvalidField(
-            "Truncated file", path)
+        InvalidField("Truncated file", path)
         return
 
     with open(path, "r") as file_handle:
