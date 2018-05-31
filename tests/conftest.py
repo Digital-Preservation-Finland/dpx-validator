@@ -16,7 +16,7 @@ def test_file(tmpdir):
     return testfile
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(scope='function')
 def littleendian_file(tmpdir):
     """Test files in `tests/data` are supposedly
     written with bigendian byteorder. Attempt here

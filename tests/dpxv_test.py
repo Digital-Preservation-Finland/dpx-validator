@@ -40,4 +40,16 @@ def test_empty_file():
         ['python', '-m', 'dpx_validator.dpxv', empty_file],
         env={'PYTHONPATH': '.'}, stderr=STDOUT)
 
-    assert output == '%s: File is empty\n' % empty_file
+    assert output == '%s: File is partial or empty - 0 bytes\n' % empty_file
+
+
+def test_partial_file(test_file):
+    """Partial file should be reported as invalid to stderr."""
+
+    partial_file = test_file.strpath
+
+    output = check_output(
+        ['python', '-m', 'dpx_validator.dpxv', partial_file],
+        env={'PYTHONPATH': '.'}, stderr=STDOUT)
+
+    assert output == '%s: File is partial or empty - 1 bytes\n' % partial_file

@@ -15,7 +15,7 @@ not return anything (except None).
 from os import stat
 from struct import unpack, calcsize
 
-from dpx_validator.models import Field, InvalidField, EmptyFile
+from dpx_validator.models import InvalidField
 
 
 # Bigendian byte order by default for struct.unpack
@@ -89,7 +89,7 @@ def check_version(field, **kwargs):
 
     field = bytearray(field).rsplit('\0')[0]
 
-    if not str(field) == 'V2.0':
+    if str(field) != 'V2.0':
         raise InvalidField(
             "Invalid header version %s" % str(field), kwargs["path"])
 
@@ -102,7 +102,7 @@ def check_filesize(field, **kwargs):
 
     if not field == filesize:
         raise InvalidField(
-            "File size in header (%s) differs"
+            "File size in header (%s) differs "
             "from filesystem size %s" % (str(field), filesize), kwargs["path"])
 
 
@@ -113,3 +113,17 @@ def check_unencrypted(field, **kwargs):
         raise InvalidField(
             "Encryption key in header not"
             "set to NULL or undefined", kwargs["path"])
+
+
+def partial_header(filesize, last_field):
+    """Check for partial header to appropriately invalidate a partial file.
+    This function helps to prevent 'struct.unpack' errors when file length is
+    between zero and offset of the last validated field.
+
+    :filesize: Size of the file
+    :last_field: Field class with highest offset (and data_form size)
+    :returns: True for partial (invalid) file, otherwise False
+
+    """
+
+    return filesize < last_field.offset + calcsize(last_field.data_form)

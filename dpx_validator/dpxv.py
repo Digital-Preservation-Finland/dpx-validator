@@ -3,8 +3,9 @@
 import sys
 from os import stat
 
-from dpx_validator.models import Field, InvalidField, EmptyFile
+from dpx_validator.models import Field, InvalidField
 from dpx_validator.validations import (
+    partial_header,
     read_field,
     check_magic_number,
     offset_to_image,
@@ -18,7 +19,8 @@ if len(sys.argv) < 2:
     exit(1)
 
 
-# List fields for validation, from the beginning of file
+# List fields for validation, from the beginning of file and
+#  sort by offset
 VALIDATED_FIELDS = [
     Field(offset=0, data_form='I', func=check_magic_number),
     Field(offset=4, data_form='I', func=offset_to_image),
@@ -45,23 +47,22 @@ def validate_file(path):
     message to stdout."""
 
     valid = True
+    file_stat = stat(path)
+
+    if partial_header(file_stat.st_size, VALIDATED_FIELDS[-1]):
+        InvalidField(
+            "File is partial or empty - %s bytes" % file_stat.st_size, path)
+        return
 
     with open(path, "r") as file_handle:
+        for position in VALIDATED_FIELDS:
 
-        if stat(file_handle.name).st_size:
+            try:
+                field = read_field(file_handle, position)
+                position.func(field, file_handle=file_handle, path=path)
 
-            for position in VALIDATED_FIELDS:
-
-                try:
-                    field = read_field(file_handle, position)
-                    position.func(field, file_handle=file_handle, path=path)
-
-                except InvalidField:
-                    valid = False
-
-        else:
-            valid = False
-            EmptyFile("File is empty", file_handle.name)
+            except InvalidField:
+                valid = False
 
     # Message to standard output stream
     if valid:

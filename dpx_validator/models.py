@@ -39,7 +39,3 @@ class InvalidField:
         sys.stderr.write(
             form_exception_string(
                 message, file_identifier))
-
-
-class EmptyFile(InvalidField):
-    pass
