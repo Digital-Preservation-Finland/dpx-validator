@@ -40,7 +40,7 @@ def test_empty_file():
         ['python', '-m', 'dpx_validator.dpxv', empty_file],
         env={'PYTHONPATH': '.'}, stderr=STDOUT)
 
-    assert output == '%s: File is partial or empty - 0 bytes\n' % empty_file
+    assert output == '%s: Truncated file\n' % empty_file
 
 
 def test_partial_file(test_file):
@@ -52,4 +52,4 @@ def test_partial_file(test_file):
         ['python', '-m', 'dpx_validator.dpxv', partial_file],
         env={'PYTHONPATH': '.'}, stderr=STDOUT)
 
-    assert output == '%s: File is partial or empty - 1 bytes\n' % partial_file
+    assert output == '%s: Truncated file\n' % partial_file

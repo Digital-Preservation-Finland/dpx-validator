@@ -111,14 +111,16 @@ def check_unencrypted(field, **kwargs):
             "set to NULL or undefined", kwargs["path"])
 
 
-def partial_header(filesize, last_field):
-    """Check for partial header to appropriately invalidate a partial file.
+def truncated(filesize, last_field):
+    """Check for truncation to appropriately invalidate a partial file.
+    Empty files are treated as truncated files.
+
     This function helps to prevent 'struct.unpack' errors when file length is
     between zero and offset of the last validated field.
 
     :filesize: Size of the file
     :last_field: Field class with highest offset (and data_form size)
-    :returns: True for partial (invalid) file, otherwise False
+    :returns: True for truncation
 
     """
 

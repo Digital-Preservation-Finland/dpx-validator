@@ -5,7 +5,7 @@ from os import stat
 
 from dpx_validator.models import Field, InvalidField
 from dpx_validator.validations import (
-    partial_header,
+    truncated,
     read_field,
     check_magic_number,
     offset_to_image,
@@ -31,27 +31,33 @@ VALIDATED_FIELDS = [
 
 
 def main():
-    """Loop through arguments as filenames and validate the files.
-
-    :returns: 0 if all files are valid and 1 if any of the validation fails
-
-    """
+    """Loop through arguments as filenames and validate the files."""
 
     for dpx_file in sys.argv[1:]:
         validate_file(dpx_file)
 
 
 def validate_file(path):
-    """Loop through `dpx_validator.models.Field` objects in validated_fields
-    list for given file. Write any validation errors to stderr and success
-    message to stdout."""
+    """Loop through `dpx_validator.models.Field` objects in `VALIDATED_FIELDS`
+    list for given file. Any validation errors are written to standerd error
+    stream and success message to standard output stream.
+
+    Validation procedures raise InvalidField exception when encountered invalid
+    field in header section of file. InvalidField exception prints error
+    message to stderr. All of the validation procedures are executed.
+
+    All files are checked for truncation before any of the validations are
+    executed. If file truncation has happened, only that information is printed
+    to stderr and next will be validated.
+
+    """
 
     valid = True
     file_stat = stat(path)
 
-    if partial_header(file_stat.st_size, VALIDATED_FIELDS[-1]):
+    if truncated(file_stat.st_size, VALIDATED_FIELDS[-1]):
         InvalidField(
-            "File is partial or empty - %s bytes" % file_stat.st_size, path)
+            "Truncated file", path)
         return
 
     with open(path, "r") as file_handle:
