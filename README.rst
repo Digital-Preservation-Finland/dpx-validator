@@ -17,6 +17,11 @@ Run validator:
 
 Validation errors are printed to standard error stream.
 
+This software is tested with Python 2.7 with Centos 7.x releases.
+
+For more information about DPX, see the SMPTE standard ST 268-1:2014:
+File Format for Digital Moving-Picture Exchange (DPX)
+
 
 Validated fields
 ----------------
@@ -41,8 +46,13 @@ Field 15
 
 
 Format characters
---------------
+-----------------
 
 `Format characters`_  define form into which binary data is read from a header field.
 
 .. _`Format characters`: https://docs.python.org/2/library/struct.html#format-characters
+
+
+Copyright
+---------
+All rights reserved to CSC - IT Center for Science Ltd.
