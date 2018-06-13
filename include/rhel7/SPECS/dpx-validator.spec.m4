@@ -17,7 +17,7 @@ Release:        %{file_release_number}%{file_release_tag}.%{file_build_number}.g
 Summary:        Python validator for DPX files
 Group:          Development/Tools
 License:        LGPLv3+
-URL:            https://gitlab.csc.fi/dpres/dpx-validator
+URL:            https://www.csc.fi/
 Source0:        %{file_prefix}-v%{file_version}%{?file_release_tag}-%{file_build_number}-g%{file_commit_ref}.%{file_ext}
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
