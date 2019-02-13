@@ -31,7 +31,7 @@ def test_read_field(test_file, offset, data_form, valid):
 
     """
 
-    test_handle = open(test_file.strpath, 'r')
+    test_handle = open(test_file.strpath, 'rb')
 
     # c = q, b = 113 ...
     position = Field(offset=offset, data_form=data_form, func=None)

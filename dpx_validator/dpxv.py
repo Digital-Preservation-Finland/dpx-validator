@@ -59,7 +59,7 @@ def validate_file(path):
         InvalidField("Truncated file", path)
         return
 
-    with open(path, "r") as file_handle:
+    with open(path, "rb") as file_handle:
         for position in VALIDATED_FIELDS:
 
             try:
