@@ -100,8 +100,8 @@ def check_filesize(field, **kwargs):
 
     if not field == kwargs['stat'].st_size:
         raise InvalidField(
-            "File size in header (%s) differs "
-            "from filesystem size %s" % (str(field), kwargs['stat'].st_size),
+            "Different file sizes from header ({}) and filesystem ({})"
+            .format(str(field), kwargs['stat'].st_size),
             kwargs["path"])
 
 
@@ -110,7 +110,7 @@ def check_unencrypted(field, **kwargs):
 
     if 'fffffff' not in hex(field):
         raise InvalidField(
-            "Encryption key in header not"
+            "Encryption key in header not "
             "set to NULL or undefined", kwargs["path"])
 
 
