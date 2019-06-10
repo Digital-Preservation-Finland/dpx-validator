@@ -85,13 +85,17 @@ def offset_to_image(field, **kwargs):
 
 
 def check_version(field, **kwargs):
-    """DPX version should be null terminated 'V2.0'."""
+    """DPX version should be null terminated 'V2.0' or 'V1.0'."""
 
     field = bytearray(field).rsplit(b'\0')[0]
 
-    if field != b'V2.0':
+    if field not in [b'V2.0', b'V1.0']:
         raise InvalidField(
             "Invalid header version %s" % str(field), kwargs["path"])
+
+    print("File {path} validated as {version}".format(
+        path=kwargs["path"],
+        version=str(field)))
 
 
 def check_filesize(field, **kwargs):
