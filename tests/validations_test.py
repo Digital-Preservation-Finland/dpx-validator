@@ -41,13 +41,13 @@ def test_read_field(test_file, offset, data_form, valid):
             read_field(test_handle, position)
 
     else:
-        assert read_field(test_handle, position) == 'q'
+        assert read_field(test_handle, position) == b'q'
 
 
 @pytest.mark.parametrize("data,valid", [
-    ("SDPX", True),
-    ("XPDS", True),
-    ("fals", False)
+    (b"SDPX", True),
+    (b"XPDS", True),
+    (b"fals", False)
 ])
 def test_check_magic_number(data, valid):
     """Test magic number is validated as 'SDPX' or 'XDPS'."""
@@ -82,8 +82,8 @@ def test_offset_to_image(test_file, test_file_oob):
 
 
 @pytest.mark.parametrize("data,valid", [
-    ("V2.0\0  y", True),
-    ("V2.0  - ", False)
+    (b"V2.0\0  y", True),
+    (b"V2.0  - ", False)
 ])
 def test_check_version(data, valid):
     """Test the 8 bytes field is null terminated 'V2.0'."""
@@ -92,7 +92,8 @@ def test_check_version(data, valid):
     byteorder = '>'  # big endian
 
     unpacked = unpack(byteorder+('c'*field_length), data)
-    bytearray(unpacked).rstrip('\0')
+    unpacked = b"".join([b for b in unpacked])
+    bytearray(unpacked).rstrip(b'\0')
 
     # Validation error raises exception,
     if not valid:

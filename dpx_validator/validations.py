@@ -30,7 +30,7 @@ def littleendian_byteorder():
     global BYTEORDER
     BYTEORDER = "<"
 
-    print 'Byte order changed to littleendian'
+    print('Byte order changed to littleendian')
 
 
 def read_field(file_handle, field):
@@ -87,9 +87,9 @@ def offset_to_image(field, **kwargs):
 def check_version(field, **kwargs):
     """DPX version should be null terminated 'V2.0'."""
 
-    field = bytearray(field).rsplit('\0')[0]
+    field = bytearray(field).rsplit(b'\0')[0]
 
-    if str(field) != 'V2.0':
+    if field != b'V2.0':
         raise InvalidField(
             "Invalid header version %s" % str(field), kwargs["path"])
 

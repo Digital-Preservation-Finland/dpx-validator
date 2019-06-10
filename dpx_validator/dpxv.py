@@ -15,7 +15,7 @@ from dpx_validator.validations import (
 
 
 if len(sys.argv) < 2:
-    print 'USAGE:\tdpxv FILENAME ...'
+    print('USAGE:\tdpxv FILENAME ...')
     exit(1)
 
 
@@ -75,7 +75,7 @@ def validate_file(path):
 
     # Message to standard output stream
     if valid:
-        print 'File %s is valid' % path
+        print('File %s is valid' % path)
 
 
 if __name__ == '__main__':

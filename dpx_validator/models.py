@@ -30,7 +30,7 @@ def form_exception_string(message, file_identifier):
     return ''.join(form)
 
 
-class InvalidField:
+class InvalidField(ValueError):
     """Used as an exception and raised when a validation procedure fails."""
 
     def __init__(self, message, file_identifier):
