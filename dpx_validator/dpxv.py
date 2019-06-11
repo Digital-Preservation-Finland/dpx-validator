@@ -1,9 +1,10 @@
 """DPXv: DPX file format validator for DPX version 2.0"""
 
-import sys
+from sys import argv, stderr
 from os import stat
 
 from dpx_validator.models import Field, InvalidField
+
 from dpx_validator.validations import (
     truncated,
     read_field,
@@ -14,7 +15,7 @@ from dpx_validator.validations import (
     check_unencrypted)
 
 
-if len(sys.argv) < 2:
+if len(argv) < 2:
     print('USAGE:\tdpxv FILENAME ...')
     exit(1)
 
@@ -33,7 +34,7 @@ VALIDATED_FIELDS = [
 def main():
     """Loop through arguments as filenames and validate the files."""
 
-    for dpx_file in sys.argv[1:]:
+    for dpx_file in argv[1:]:
         validate_file(dpx_file)
 
 
@@ -56,7 +57,7 @@ def validate_file(path):
     file_stat = stat(path)
 
     if truncated(file_stat.st_size, VALIDATED_FIELDS[-1]):
-        InvalidField("Truncated file", path)
+        stderr.write(error("Truncated file", path))
         return
 
     with open(path, "rb") as file_handle:
@@ -70,12 +71,20 @@ def validate_file(path):
                     path=path,
                     stat=file_stat)
 
-            except InvalidField:
+            except InvalidField as invalid:
                 valid = False
+
+                msg, path = invalid.args
+                stderr.write(error(msg, path))
 
     # Message to standard output stream
     if valid:
         print('File %s is valid' % path)
+
+
+def error(message, file_identifier):
+    """Form exception string."""
+    return ''.join([str(file_identifier), ': ', str(message), '\n'])
 
 
 if __name__ == '__main__':
