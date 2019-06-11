@@ -59,7 +59,7 @@ def test_check_magic_number(data, valid):
             check_magic_number(data, path='test')
 
     else:
-        assert check_magic_number(data) is None
+        check_magic_number(data, path='test')
 
 
 def test_offset_to_image(test_file, test_file_oob):
@@ -83,7 +83,10 @@ def test_offset_to_image(test_file, test_file_oob):
 
 @pytest.mark.parametrize("data,valid", [
     (b"V2.0\0  y", True),
-    (b"V2.0  - ", False)
+    (b"V2.0  - ", False),
+    (b"V1.0\0  y", True),
+    (b"V1.0  = ", False),
+    (b"V3.0  - ", False)
 ])
 def test_check_version(data, valid):
     """Test the 8 bytes field is null terminated 'V2.0'."""
@@ -102,7 +105,7 @@ def test_check_version(data, valid):
 
     # Successful validation does not return anything
     else:
-        assert check_version(data) is None
+        check_version(data, path='test')
 
 
 def test_check_filesize(test_file, test_file_oob):
@@ -118,10 +121,9 @@ def test_check_filesize(test_file, test_file_oob):
             path=test_file.strpath,
             stat=file_stat)
 
-    assert check_filesize(
-        file_stat.st_size,
-        path=test_file.strpath,
-        stat=file_stat) is None
+    check_filesize(file_stat.st_size,
+                   path=test_file.strpath,
+                   stat=file_stat)
 
 
 def test_check_unencrypted():
@@ -133,4 +135,4 @@ def test_check_unencrypted():
     with pytest.raises(InvalidField):
         check_unencrypted(1, path='test')
 
-    assert check_unencrypted(unencrypted) is None
+    check_unencrypted(unencrypted, path='test')
