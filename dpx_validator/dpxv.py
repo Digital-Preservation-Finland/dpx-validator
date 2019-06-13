@@ -1,4 +1,4 @@
-"""DPXv: DPX file format validator for DPX version 2.0"""
+"""DPXv: DPX file format validator"""
 
 from sys import argv, stderr
 from os import stat

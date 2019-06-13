@@ -36,7 +36,7 @@ Field 2
         A valid image data offset value.
 
 Field 3
-        Header format version number as 'V2.0'.
+        Header format version as either 'V1.0' or 'V2.0'
 
 Field 4
         DPX file size in header matches what filesystem shows.
