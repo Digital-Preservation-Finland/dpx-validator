@@ -31,8 +31,6 @@ def littleendian_byteorder():
     global BYTEORDER
     BYTEORDER = "<"
 
-    print('Byte order changed to littleendian')
-
 
 def read_field(file_handle, field):
     """The byte reading procedure for a section in a file."""
@@ -72,6 +70,7 @@ def check_magic_number(field, **kwargs):
 
         # Byte order and bit order are not the same
         littleendian_byteorder()
+        return 'Byte order changed to littleendian'
 
 
 def offset_to_image(field, **kwargs):
@@ -94,9 +93,9 @@ def check_version(field, **kwargs):
         raise InvalidField(
             "Invalid header version %s" % str(field), kwargs["path"])
 
-    print("File {path} validated as {version}".format(
+    return "File {path} validated as {version}".format(
         path=kwargs["path"],
-        version=str(field)))
+        version=str(field))
 
 
 def check_filesize(field, **kwargs):
