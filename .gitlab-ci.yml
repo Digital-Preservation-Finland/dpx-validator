@@ -28,8 +28,6 @@ static-analysis:
 
 unit-test:
   stage: local-test
-  variables:
-    ANSIBLE_REPOSITORY: 'ansible-preservation-system'
   script:
     - 'unit-test.sh'
   except:
@@ -96,3 +94,6 @@ rpm-stable:
     - 'rpm-stable.sh'
   only:
     - tags
+
+variables:
+  ANSIBLE_REPOSITORY: 'ansible-preservation-system'
