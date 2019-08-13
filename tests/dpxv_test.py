@@ -9,6 +9,7 @@ import pytest
 
 @pytest.mark.parametrize("testfile,returncode", [
     ('tests/data/valid_dpx.dpx', 0),
+    ('tests/data/valid_dpx1.dpx', 0),
     ('tests/data/corrupted_dpx.dpx', 0),
     ('tests/data/empty_file.dpx', 0)
 ])
