@@ -1,6 +1,9 @@
 """DPXv: DPX file format validator"""
 
+from __future__ import print_function
+
 import sys
+from dpx_validator.models import TruncatedFile
 from dpx_validator.api import validate_file
 
 
@@ -15,14 +18,14 @@ def main():
     valid = None
 
     for dpx_file in sys.argv[1:]:
-        for info, errors in validate_file(dpx_file):
+        for info, error in validate_file(dpx_file):
 
             if info:
-                print(info)
+                print("{}: {}".format(dpx_file, info), file=sys.stdout)
 
-            if errors:
+            if error:
                 valid = False
-                sys.stderr.write(str(errors) + '\n')
+                print("{}: {}".format(dpx_file, error), file=sys.stderr)
 
         if valid is not False:
             valid = True

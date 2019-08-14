@@ -15,6 +15,20 @@ class InvalidField(ValueError):
         return self.message
 
 
+class TruncatedFile(StopIteration):
+    """File is truncated."""
+
+    def __init__(self, file_identifier):
+        super(TruncatedFile, self).__init__()
+
+        self.message = "Truncated file"
+        self.file_identifier = file_identifier
+
+    def __str__(self):
+        """Form exception string."""
+        return self.message
+
+
 class Field:
     """Define a section from file to extract for validation.
 
