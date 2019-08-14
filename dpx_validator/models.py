@@ -1,6 +1,16 @@
 """Data structures"""
 
 
+class MSG:
+    """List of message types."""
+
+    class UndefinedType(Exception):
+        pass
+
+    info = 1
+    error = 2
+
+
 class InvalidField(ValueError):
     """Used as an exception and raised when a validation procedure fails."""
 

@@ -3,6 +3,7 @@
 from __future__ import print_function
 
 import sys
+from dpx_validator.models import MSG
 from dpx_validator.api import validate_file
 
 
@@ -20,14 +21,18 @@ def main():
 
         valid = True
 
-        for info, error in validate_file(dpx_file):
+        for msg_type, msg in validate_file(dpx_file):
 
-            if info:
-                print("{}: {}".format(dpx_file, info))
+            if msg_type == MSG.info:
+                print("{}: {}".format(dpx_file, msg))
 
-            if error:
+            elif msg_type == MSG.error:
                 valid = False
-                print("{}: {}".format(dpx_file, error), file=sys.stderr)
+                print("{}: {}".format(dpx_file, msg), file=sys.stderr)
+
+            else:
+                raise MSG.UndefinedType(
+                    "Undefined message type {}".format(msg_type))
 
         if valid:
             print("{} is valid".format(dpx_file))
