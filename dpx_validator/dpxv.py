@@ -3,7 +3,6 @@
 from __future__ import print_function
 
 import sys
-from dpx_validator.models import TruncatedFile
 from dpx_validator.api import validate_file
 
 
@@ -13,22 +12,24 @@ if len(sys.argv) < 2:
 
 
 def main():
-    """Loop through arguments as filenames and validate the files."""
-
-    valid = None
+    """Validate DPX files in paths given as arguments to the program.
+    Informative details are written to standard output stream and errors
+    are written to standard error stream."""
 
     for dpx_file in sys.argv[1:]:
+
+        valid = True
+
         for info, error in validate_file(dpx_file):
 
             if info:
-                print("{}: {}".format(dpx_file, info), file=sys.stdout)
+                print("{}: {}".format(dpx_file, info))
 
             if error:
                 valid = False
                 print("{}: {}".format(dpx_file, error), file=sys.stderr)
 
-        if valid is not False:
-            valid = True
+        if valid:
             print("{} is valid".format(dpx_file))
 
 
