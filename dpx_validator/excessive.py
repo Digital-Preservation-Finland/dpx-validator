@@ -17,6 +17,4 @@ def funny_filesize(field, stat):
     if not stat - field < 8192:
         return False
 
-    print("Valid fuzzy filesize: header {}, stat {}".format(field, stat))
-
     return True

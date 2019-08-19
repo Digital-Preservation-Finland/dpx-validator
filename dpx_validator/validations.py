@@ -94,7 +94,7 @@ def check_version(field, **kwargs):
         raise InvalidField(
             "Invalid header version %s" % str(field), kwargs["path"])
 
-    print("File {path} validated as {version}".format(
+    print("{path} validated as {version}".format(
         path=kwargs["path"],
         version=str(field)))
 
@@ -106,6 +106,8 @@ def check_filesize(field, **kwargs):
     if not field == kwargs['stat'].st_size:
 
         if funny_filesize(field, kwargs['stat'].st_size):
+            print("{}: Valid fuzzy filesize: header {}, stat {} bytes"
+                  .format(kwargs['path'], field, kwargs['stat'].st_size))
             return
 
         raise InvalidField(
