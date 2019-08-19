@@ -18,6 +18,7 @@ fields are valid, success message is written to stdout.
 from struct import unpack, calcsize
 
 from dpx_validator.models import InvalidField
+from dpx_validator.excessive import funny_filesize
 
 
 # Bigendian byte order by default for struct.unpack
@@ -103,6 +104,10 @@ def check_filesize(field, **kwargs):
     what filesystem tells."""
 
     if not field == kwargs['stat'].st_size:
+
+        if funny_filesize(field, kwargs['stat'].st_size):
+            return
+
         raise InvalidField(
             "Different file sizes from header ({}) and filesystem ({})"
             .format(str(field), kwargs['stat'].st_size),
