@@ -18,7 +18,7 @@ fields are valid, success message is written to stdout.
 from struct import unpack, calcsize
 
 from dpx_validator.models import InvalidField
-from dpx_validator.excessive import funny_filesize
+from dpx_validator.excessives import funny_filesize
 
 
 # Bigendian byte order by default for struct.unpack
