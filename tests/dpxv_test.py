@@ -46,7 +46,7 @@ def test_empty_file():
 
     if six.PY3:
         output = str(output, "utf-8")
-    assert output == '%s: Truncated file\n' % empty_file
+    assert output == 'File %s: Truncated file\n' % empty_file
 
 
 def test_partial_file(test_file):
@@ -60,4 +60,4 @@ def test_partial_file(test_file):
 
     if six.PY3:
         output = str(output, "utf-8")
-    assert output == '%s: Truncated file\n' % partial_file
+    assert output == 'File %s: Truncated file\n' % partial_file
