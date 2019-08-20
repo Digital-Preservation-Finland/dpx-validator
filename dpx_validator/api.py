@@ -4,7 +4,7 @@
 from os import stat
 
 from dpx_validator.models import (MSG, InvalidField, TruncatedFile,
-                                  UndefinedType)
+                                  UndefinedMessage)
 from dpx_validator.validations import (
     truncated,
     read_field,
@@ -101,7 +101,7 @@ def validation_summary(path):
         elif msg_type == MSG["error"]:
             result["errors"].append(str(msg))
         else:
-            raise UndefinedType(
+            raise UndefinedMessage(
                 "Undefined message type {}".format(msg_type))
 
     return result

@@ -4,7 +4,7 @@
 MSG = dict(info=1, error=2)
 
 
-class UndefinedType(Exception):
+class UndefinedMessage(Exception):
     """Message type from validation procedures that is not
     defined in `dpx_validator.models.MSG`"""
 

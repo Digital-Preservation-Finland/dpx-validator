@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 import sys
-from dpx_validator.models import MSG, UndefinedType
+from dpx_validator.models import MSG, UndefinedMessage
 from dpx_validator.api import validate_file
 
 
@@ -31,7 +31,7 @@ def main():
                 print("{}: {}".format(dpx_file, msg), file=sys.stderr)
 
             else:
-                raise UndefinedType(
+                raise UndefinedMessage(
                     "Undefined message type {}".format(msg_type))
 
         if valid:
