@@ -35,12 +35,12 @@ def littleendian_byteorder():
 def read_field(file_handle, field):
     """The byte reading procedure for a section in a file."""
 
-    length = calcsize(field.data_form)
+    length = calcsize(field["data_form"])
 
-    file_handle.seek(field.offset)
+    file_handle.seek(field["offset"])
     data = file_handle.read(length)
 
-    unpacked = unpack(BYTEORDER+field.data_form, data)
+    unpacked = unpack(BYTEORDER+field["data_form"], data)
 
     if len(unpacked) == 1:
         return unpacked[0]
@@ -137,4 +137,4 @@ def truncated(filesize, last_field):
 
     """
 
-    return filesize < last_field.offset + calcsize(last_field.data_form)
+    return filesize < last_field["offset"] + calcsize(last_field["data_form"])

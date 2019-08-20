@@ -6,7 +6,7 @@ from struct import unpack, error
 
 import pytest
 
-from dpx_validator.models import Field, InvalidField
+from dpx_validator.models import InvalidField
 from dpx_validator.validations import (
     BYTEORDER,
     read_field,
@@ -34,7 +34,7 @@ def test_read_field(test_file, offset, data_form, valid):
     test_handle = open(test_file.strpath, 'rb')
 
     # c = q, b = 113 ...
-    position = Field(offset=offset, data_form=data_form, func=None)
+    position = dict(offset=offset, data_form=data_form, func=None)
 
     if not valid:
         with pytest.raises(error):

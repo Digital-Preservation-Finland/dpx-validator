@@ -1,14 +1,12 @@
 """Data structures"""
 
 
-class MSG:
-    """List of message types."""
+MSG = dict(info=1, error=2)
 
-    class UndefinedType(Exception):
-        pass
 
-    info = 1
-    error = 2
+class UndefinedType(Exception):
+    """Message type from validation procedures that is not
+    defined in `dpx_validator.models.MSG`"""
 
 
 class InvalidField(ValueError):
@@ -37,19 +35,3 @@ class TruncatedFile(StopIteration):
     def __str__(self):
         """Form exception string."""
         return self.message
-
-
-class Field:
-    """Define a section from file to extract for validation.
-
-    :offset: Starting point of a field from the beginning of file
-    :data_form: Python's Format character(s) of excepted binary data
-    :func: The validation function in `dpxv.validations`
-
-    """
-
-    def __init__(self, **kwargs):
-
-        self.offset = kwargs['offset']
-        self.data_form = kwargs['data_form']
-        self.func = kwargs['func']

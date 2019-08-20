@@ -3,7 +3,8 @@
 
 from os import stat
 
-from dpx_validator.models import MSG, Field, InvalidField, TruncatedFile
+from dpx_validator.models import (MSG, InvalidField, TruncatedFile,
+                                  UndefinedType)
 from dpx_validator.validations import (
     truncated,
     read_field,
@@ -15,12 +16,17 @@ from dpx_validator.validations import (
 
 # List fields for validation, from the beginning of file and
 #  sort by offset
+#
+# Define a section from file to extract for validation.
+# :offset: Starting point of a field from the beginning of file
+# :data_form: Python's Format character(s) of excepted binary data
+# :func: The validation function in `dpxv.validations`
 VALIDATED_FIELDS = [
-    Field(offset=0, data_form='I', func=check_magic_number),
-    Field(offset=4, data_form='I', func=offset_to_image),
-    Field(offset=8, data_form='c'*8, func=check_version),
-    Field(offset=16, data_form='I', func=check_filesize),
-    Field(offset=660, data_form='I', func=check_unencrypted)
+    dict(offset=0, data_form='I', func=check_magic_number),
+    dict(offset=4, data_form='I', func=offset_to_image),
+    dict(offset=8, data_form='c'*8, func=check_version),
+    dict(offset=16, data_form='I', func=check_filesize),
+    dict(offset=660, data_form='I', func=check_unencrypted)
 ]
 
 
@@ -46,7 +52,7 @@ def validate_file(path):
     file_stat = stat(path)
 
     if truncated(file_stat.st_size, VALIDATED_FIELDS[-1]):
-        yield (MSG.error, TruncatedFile(path))
+        yield (MSG["error"], TruncatedFile(path))
         raise StopIteration()
 
     with open(path, "rb") as file_handle:
@@ -54,15 +60,15 @@ def validate_file(path):
 
             try:
                 field = read_field(file_handle, position)
-                info = position.func(
+                info = position["func"](
                     field,
                     file_handle=file_handle,
                     path=path,
                     stat=file_stat)
-                yield (MSG.info, info)
+                yield (MSG["info"], info)
 
             except InvalidField as invalid:
-                yield (MSG.error, invalid)
+                yield (MSG["error"], invalid)
 
 
 def file_is_valid(path):
@@ -72,7 +78,7 @@ def file_is_valid(path):
     :return: True when valid, False when not"""
 
     for msg_type, _ in validate_file(path):
-        if msg_type == MSG.error:
+        if msg_type == MSG["error"]:
             return False
     return True
 
@@ -90,12 +96,12 @@ def validation_summary(path):
 
     result = {"info": [], "errors": []}
     for msg_type, msg in validate_file(path):
-        if msg_type == MSG.info:
+        if msg_type == MSG["info"]:
             result["info"].append(msg)
-        elif msg_type == MSG.error:
+        elif msg_type == MSG["error"]:
             result["errors"].append(str(msg))
         else:
-            raise MSG.UndefinedType(
+            raise UndefinedType(
                 "Undefined message type {}".format(msg_type))
 
     return result
