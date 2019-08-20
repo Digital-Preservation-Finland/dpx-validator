@@ -84,7 +84,7 @@ def validate_file(path):
 
 def error(message, file_identifier):
     """Form exception string."""
-    return ''.join(['File ', str(file_identifier), ': ', str(message), '\n'])
+    return "File {}: {}\n".format(file_identifier, message)
 
 
 if __name__ == '__main__':
