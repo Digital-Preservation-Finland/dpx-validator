@@ -65,7 +65,9 @@ def validate_file(path):
                     file_handle=file_handle,
                     path=path,
                     stat=file_stat)
-                yield (MSG["info"], info)
+
+                if info:
+                    yield (MSG["info"], info)
 
             except InvalidField as invalid:
                 yield (MSG["error"], invalid)
