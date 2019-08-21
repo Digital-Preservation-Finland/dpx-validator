@@ -12,7 +12,8 @@ from dpx_validator.dpxv import main
     ('tests/data/valid_dpx.dpx', 0),
     ('tests/data/valid_dpx1.dpx', 0),
     ('tests/data/corrupted_dpx.dpx', 0),
-    ('tests/data/empty_file.dpx', 0)
+    ('tests/data/empty_file.dpx', 0),
+    ('tests/data/invalid_version.dpx', 0)
 ])
 def test_returncode(testfile, returncode):
     """Test with valid, corrupted and empty files."""
@@ -65,17 +66,27 @@ def test_partial_file(test_file):
     assert output == 'File %s: Truncated file\n' % partial_file
 
 
-def test_filelists_main(capsys):
+def test_filelists_run_main(capsys):
     """Test that main handles multiple files."""
 
     main(['tests/data/valid_dpx.dpx',
           'tests/data/valid_dpx1.dpx'])
 
-    assert capsys.readouterr()[0]
-    assert not capsys.readouterr()[1]
+    (out, err) = capsys.readouterr()
+    print(out, err)
+
+    assert not err
+    assert out
 
     main(['tests/data/valid_dpx.dpx',
           'tests/data/corrupted_dpx.dpx',
-          'tests/data/empty_file.dpx'])
+          'tests/data/empty_file.dpx',
+          'tests/data/valid_dpx1.dpx',
+          'tests/data/invalid_version.dpx',
+          'tests/data/invalid_version.dpx'])
 
-    assert capsys.readouterr()[1]
+    (out, err) = capsys.readouterr()
+    print(out, err)
+
+    assert out
+    assert "Invalid header version" in err

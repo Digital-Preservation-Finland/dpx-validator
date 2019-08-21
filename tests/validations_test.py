@@ -35,6 +35,7 @@ def test_read_field(test_file, offset, data_form, valid):
 
     # c = q, b = 113 ...
     position = dict(offset=offset, data_form=data_form, func=None)
+    print(position)
 
     if not valid:
         with pytest.raises(error):
@@ -75,37 +76,35 @@ def test_offset_to_image(test_file, test_file_oob):
             path=test_file.strpath,
             stat=file_stat)
 
-    assert offset_to_image(
+    offset_to_image(
         file_stat.st_size,
         path=test_file.strpath,
-        stat=file_stat) is None
+        stat=file_stat)
 
 
 @pytest.mark.parametrize("data,valid", [
     (b"V2.0\0  y", True),
     (b"V2.0  - ", False),
     (b"V1.0\0  y", True),
-    (b"V1.0  = ", False),
-    (b"V3.0  - ", False)
+    (b"V1.0  =\0", False),
+    (b"V3.0\0 - ", False)
 ])
 def test_check_version(data, valid):
-    """Test the 8 bytes field is null terminated 'V2.0'."""
+    """Test the 8 bytes field is null terminated 'V2.0' or 'V1.0'."""
 
     field_length = 8
     byteorder = '>'  # big endian
+    data_form = byteorder+('c'*field_length)
 
-    unpacked = unpack(byteorder+('c'*field_length), data)
-    unpacked = b"".join([b for b in unpacked])
-    bytearray(unpacked).rstrip(b'\0')
+    print(data_form)
+    unpacked = unpack(data_form, data)
 
-    # Validation error raises exception,
     if not valid:
         with pytest.raises(InvalidField):
-            check_version(data, path='test')
+            check_version(unpacked, path='test')
 
-    # Successful validation does not return anything
     else:
-        check_version(data, path='test')
+        check_version(unpacked, path='test')
 
 
 def test_check_filesize(test_file, test_file_oob):

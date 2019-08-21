@@ -87,7 +87,8 @@ def offset_to_image(field, **kwargs):
 def check_version(field, **kwargs):
     """DPX version should be null terminated 'V2.0' or 'V1.0'."""
 
-    field = bytearray(field).rsplit(b'\0')[0]
+    field = b"".join([x for x in field])
+    field = field.rsplit(b'\0')[0]
 
     if field not in [b'V2.0', b'V1.0']:
         raise InvalidField(

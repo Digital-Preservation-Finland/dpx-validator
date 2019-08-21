@@ -1,8 +1,8 @@
 """DPXv: DPX file format validator"""
 
 from __future__ import print_function
-
 import sys
+
 from dpx_validator.models import MSG, UndefinedMessage
 from dpx_validator.api import validate_file
 
