@@ -105,9 +105,8 @@ def check_filesize(field, **kwargs):
     if not field == kwargs['stat'].st_size:
 
         if funny_filesize(field, kwargs['stat'].st_size):
-            print("File {}: Valid fuzzy filesize: header {}, stat {} bytes"
-                  .format(kwargs['path'], field, kwargs['stat'].st_size))
-            return
+            return "Valid fuzzy filesize: header {}, stat {} bytes".format(
+                   field, kwargs['stat'].st_size)
 
         raise InvalidField(
             "Different file sizes from header ({}) and filesystem ({})"

@@ -24,18 +24,18 @@ def main():
         for msg_type, msg in validate_file(dpx_file):
 
             if msg_type == MSG["info"]:
-                print("{}: {}".format(dpx_file, msg))
+                print("File {}: {}".format(dpx_file, msg))
 
             elif msg_type == MSG["error"]:
                 valid = False
-                print("{}: {}".format(dpx_file, msg), file=sys.stderr)
+                print("File {}: {}".format(dpx_file, msg), file=sys.stderr)
 
             else:
                 raise UndefinedMessage(
                     "Undefined message type {}".format(msg_type))
 
         if valid:
-            print("{} is valid".format(dpx_file))
+            print("File {} is valid".format(dpx_file))
 
 
 if __name__ == '__main__':
