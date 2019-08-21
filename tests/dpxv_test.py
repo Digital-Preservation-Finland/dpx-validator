@@ -3,8 +3,9 @@
 from subprocess import STDOUT, call, check_output
 
 import six
-
 import pytest
+
+from dpx_validator.dpxv import main
 
 
 @pytest.mark.parametrize("testfile,returncode", [
@@ -62,3 +63,19 @@ def test_partial_file(test_file):
     if six.PY3:
         output = str(output, "utf-8")
     assert output == 'File %s: Truncated file\n' % partial_file
+
+
+def test_filelists_main(capsys):
+    """Test that main handles multiple files."""
+
+    main(['tests/data/valid_dpx.dpx',
+          'tests/data/valid_dpx1.dpx'])
+
+    assert capsys.readouterr()[0]
+    assert not capsys.readouterr()[1]
+
+    main(['tests/data/valid_dpx.dpx',
+          'tests/data/corrupted_dpx.dpx',
+          'tests/data/empty_file.dpx'])
+
+    assert capsys.readouterr()[1]

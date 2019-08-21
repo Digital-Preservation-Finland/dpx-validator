@@ -91,7 +91,7 @@ def test_offset_to_image(test_file, test_file_oob):
 def test_check_version(data, valid):
     """Test the 8 bytes field is null terminated 'V2.0'."""
 
-    field_length = len(data)
+    field_length = 8
     byteorder = '>'  # big endian
 
     unpacked = unpack(byteorder+('c'*field_length), data)

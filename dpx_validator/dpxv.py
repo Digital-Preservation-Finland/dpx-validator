@@ -12,12 +12,12 @@ if len(sys.argv) < 2:
     exit(1)
 
 
-def main():
+def main(files):
     """Validate DPX files in paths given as arguments to the program.
     Informative details are written to standard output stream and errors
     are written to standard error stream."""
 
-    for dpx_file in sys.argv[1:]:
+    for dpx_file in files:
 
         valid = True
 
@@ -39,4 +39,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
