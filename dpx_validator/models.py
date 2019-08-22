@@ -10,28 +10,10 @@ class UndefinedMessage(Exception):
 
 
 class InvalidField(ValueError):
-    """Used as an exception and raised when a validation procedure fails."""
-
-    def __init__(self, message, file_identifier):
-        super(InvalidField, self).__init__()
-
-        self.message = message
-        self.file_identifier = file_identifier
-
-    def __str__(self):
-        """Form exception string."""
-        return self.message
+    """Value in the header field is invalid."""
 
 
 class TruncatedFile(StopIteration):
-    """File is truncated."""
-
-    def __init__(self, file_identifier):
-        super(TruncatedFile, self).__init__()
-
-        self.message = "Truncated file"
-        self.file_identifier = file_identifier
-
+    """File is truncated. Validation can not proceed."""
     def __str__(self):
-        """Form exception string."""
-        return self.message
+        return "Truncated file"

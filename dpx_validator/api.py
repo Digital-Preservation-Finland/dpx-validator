@@ -52,7 +52,7 @@ def validate_file(path):
     file_stat = stat(path)
 
     if truncated(file_stat.st_size, VALIDATED_FIELDS[-1]):
-        yield (MSG["error"], TruncatedFile(path))
+        yield (MSG["error"], TruncatedFile())
         raise StopIteration()
 
     with open(path, "rb") as file_handle:

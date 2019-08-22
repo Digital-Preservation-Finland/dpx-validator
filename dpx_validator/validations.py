@@ -48,7 +48,7 @@ def read_field(file_handle, field):
     return unpacked
 
 
-def check_magic_number(field, **kwargs):
+def check_magic_number(field, **_):
     """Magic number should be integer of 'SDPX' or 'XPDS'.
 
     As this is the first validation procedure, if validation fails
@@ -66,7 +66,7 @@ def check_magic_number(field, **kwargs):
 
         if not field == validate_by:
             raise InvalidField(
-                'Invalid magic number: %s' % field, kwargs["path"])
+                'Invalid magic number: %s' % field)
 
         # Byte order and bit order are not the same
         littleendian_byteorder()
@@ -80,8 +80,7 @@ def offset_to_image(field, **kwargs):
     if field > kwargs['stat'].st_size:
         raise InvalidField(
             'Offset to image (%s) is more than '
-            'file size (%s) ' % (field, kwargs['stat'].st_size),
-            kwargs["path"])
+            'file size (%s) ' % (field, kwargs['stat'].st_size))
 
 
 def check_version(field, **kwargs):
@@ -92,7 +91,7 @@ def check_version(field, **kwargs):
 
     if field not in [b'V2.0', b'V1.0']:
         raise InvalidField(
-            "Invalid header version %s" % str(field), kwargs["path"])
+            "Invalid header version %s" % str(field))
 
     return "File {path} validated as {version}".format(
         path=kwargs["path"],
@@ -111,17 +110,16 @@ def check_filesize(field, **kwargs):
 
         raise InvalidField(
             "Different file sizes from header ({}) and filesystem ({})"
-            .format(str(field), kwargs['stat'].st_size),
-            kwargs["path"])
+            .format(str(field), kwargs['stat'].st_size))
 
 
-def check_unencrypted(field, **kwargs):
+def check_unencrypted(field, **_):
     """Encryption key should be undefined and DPX file unencrypted."""
 
     if 'fffffff' not in hex(field):
         raise InvalidField(
             "Encryption key in header not "
-            "set to NULL or undefined", kwargs["path"])
+            "set to NULL or undefined")
 
 
 def truncated(filesize, last_field):

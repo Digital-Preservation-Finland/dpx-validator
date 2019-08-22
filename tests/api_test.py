@@ -14,7 +14,7 @@ def test_validate_truncated_file(testfile):
     msg_type, info = next(validate)
 
     assert msg_type == MSG["error"]
-    assert info.message
+    assert info
 
     with pytest.raises(StopIteration):
         next(validate)
