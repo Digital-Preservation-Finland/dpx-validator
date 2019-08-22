@@ -17,6 +17,14 @@ Run validator:
 
 Validation errors are printed to standard error stream.
 
+Or import one of the available validator functions in `dpx_validator.api` module:
+
+        ``dpx_validator.api.validate_file``  
+
+        ``dpx_validator.api.file_is_valid``  
+
+        ``dpx_validator.api.validation_summary``  
+
 This software is tested with Python 2.7 with Centos 7.x releases.
 
 For more information about DPX, see the SMPTE standard ST 268-1:2014:
@@ -51,6 +59,16 @@ Format characters
 `Format characters`_  define form into which binary data is read from a header field.
 
 .. _`Format characters`: https://docs.python.org/2/library/struct.html#format-characters
+
+
+Developers
+----------
+
+Validation procedures in ``dpx_validator.validations`` can return a single
+informational message or raise InvalidField exception when value in a field is
+invalid. Validation will continue to the next validation procedure. New
+procedures need to be added to ``dpx_validator.api.VALIDATED_FIELDS`` list with
+ascending ``offset`` order.
 
 
 Copyright

@@ -13,13 +13,13 @@ from dpx_validator.validations import (
     check_filesize,
     check_unencrypted)
 
-# List fields for validation, from the beginning of file and
-#  sort by offset
+# List header fields for validation, from the beginning of file and
+#  in ascending order by offset
 #
 # Define a section from file to extract for validation.
 # :offset: Starting point of a field from the beginning of file
 # :data_form: Python's Format character(s) of excepted binary data
-# :func: The validation function in `dpxv.validations`
+# :func: A validation procedure from `dpxv.validations`
 VALIDATED_FIELDS = [
     dict(offset=0, data_form='I', func=check_magic_number),
     dict(offset=4, data_form='I', func=offset_to_image),

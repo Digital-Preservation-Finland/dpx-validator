@@ -1,18 +1,18 @@
 """Validation procedures
 
-Functions defined in this file are used to validate
-various fields in a DPX file header.
+Functions defined in this file are used to validate various fields in a DPX
+file header.
 
-A field in header and a validation procedure for the field
-are defined on `dpx_validator.models.Field` class.
+A field in header and a validation procedure for the field are defined as item
+in `dpx_validator.api.VALIDATED_FIELDS`.
 
-Functions get in 'field' variable with data from a section
-in header for validation. Any other data are
-defined in **kwargs and are shared by every function.
+Functions get in 'field' variable with data from a section in header for
+validation. Any other data are defined in **kwargs and are shared by every
+function.
 
-Invalid fields in header raise InvalidField exceptions
-and error messages are written to stderr. If all header
-fields are valid, success message is written to stdout.
+Invalid fields in header raise InvalidField exceptions and error messages are
+written to stderr. If all header fields are valid, success message is written
+to stdout.
 
 """
 from struct import unpack, calcsize
@@ -33,7 +33,10 @@ def littleendian_byteorder():
 
 
 def read_field(file_handle, field):
-    """The byte reading procedure for a section in a file."""
+    """Extract header field value.
+
+    :file_handle: `file` handle opened for reading
+    :field: Item from `dpx_validator.api.VALIDATED_FIELDS`"""
 
     length = calcsize(field["data_form"])
 
