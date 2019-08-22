@@ -40,9 +40,9 @@ def validate_file(path):
     `validate_file` and get yielded as errors so that validation can continue
     to remaining fields.
 
-    All files are checked for truncation before any of the validations are
-    executed. If file truncation has happened, only that information is printed
-    to stderr and next file will be validated.
+    In the beginning of validation of a file, the file is checked for
+    truncation. If file truncation has happened, validation does not proceed
+    further.
 
     :path: Path to a DPX file
     :yield: (`dpx_validator.models.MSG` property, message string)
