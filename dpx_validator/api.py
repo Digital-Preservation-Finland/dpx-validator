@@ -3,8 +3,7 @@
 
 from os import stat
 
-from dpx_validator.models import (MSG, InvalidField, TruncatedFile,
-                                  UndefinedMessage)
+from dpx_validator.models import (MSG, InvalidField, UndefinedMessage)
 from dpx_validator.validations import (
     truncated,
     read_field,
@@ -52,8 +51,8 @@ def validate_file(path):
     file_stat = stat(path)
 
     if truncated(file_stat.st_size, VALIDATED_FIELDS[-1]):
-        yield (MSG["error"], TruncatedFile())
-        raise StopIteration()
+        yield (MSG["error"], "Truncated file")
+        return
 
     with open(path, "rb") as file_handle:
         for position in VALIDATED_FIELDS:

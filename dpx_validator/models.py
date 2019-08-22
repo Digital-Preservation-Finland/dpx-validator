@@ -11,9 +11,3 @@ class UndefinedMessage(Exception):
 
 class InvalidField(ValueError):
     """Value in the header field is invalid."""
-
-
-class TruncatedFile(StopIteration):
-    """File is truncated. Validation can not proceed."""
-    def __str__(self):
-        return "Truncated file"
