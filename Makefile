@@ -3,3 +3,6 @@ test:
 
 clean:
 	git clean -Xf
+
+coverage:
+	python -m pytest -svvv --cov=dpx_validator --cov-fail-under=80 --cov-report=term-missing tests
