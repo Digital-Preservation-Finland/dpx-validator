@@ -59,21 +59,18 @@ def check_magic_number(field, **_):
 
     """
 
-    # Validate as 'SDPX'
-    validate_by = 1396985944
+    # 'SDPX'
+    if field == 1396985944:
+        return 'Byte order is big endian'
 
-    if not field == validate_by:
-
-        # Validate as 'XPDS'
-        validate_by = 1481655379
-
-        if not field == validate_by:
-            raise InvalidField(
-                'Invalid magic number: %s' % field)
-
-        # Byte order and bit order are not the same
+    # 'XPDS'
+    if field == 1481655379:
         littleendian_byteorder()
-        return 'Byte order changed to littleendian'
+        return ('Byte order changed and file validated '
+                'with little endian byte order')
+
+    raise InvalidField(
+        'Invalid magic number: %s' % field)
 
 
 def offset_to_image(field, **kwargs):
