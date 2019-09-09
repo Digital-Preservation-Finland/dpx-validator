@@ -66,9 +66,10 @@ Developers
 
 Validation procedures in ``dpx_validator.validations`` can return a single
 informational message or raise InvalidField exception when value in a field is
-invalid. Validation will continue to the next validation procedure. New
-procedures need to be added to ``dpx_validator.api.VALIDATED_FIELDS`` list with
-ascending ``offset`` order.
+invalid. Validation will continue to the next validation procedure. Return value
+from a validation procedure is not required. Exception must be raised for a
+invalid value. New procedures are added to ``dpx_validator.api.VALIDATED_FIELDS``
+list in ascending ``offset`` order.
 
 
 Copyright
