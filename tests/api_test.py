@@ -1,11 +1,11 @@
 import pytest
 
 from dpx_validator.models import MSG
-from dpx_validator.api import validate_file, file_is_valid, validation_summary
+from dpx_validator.api import validate_file
 
 
 @pytest.mark.parametrize("testfile", [
-    ('tests/data/empty_file.dpx'),
+    ('tests/data/empty_file.dpx')
 ])
 def test_validate_truncated_file(testfile):
     """Truncated file stop validation of the file."""
@@ -35,14 +35,16 @@ def test_validate_file(testfile):
         assert info
 
 
-@pytest.mark.parametrize("testfile,valid", [
-    ('tests/data/valid_dpx.dpx', True),
-    ('tests/data/corrupted_dpx.dpx', False)
+@pytest.mark.parametrize("testfile", [
+    ('tests/data/valid_dpx.dpx'),
+    ('tests/data/valid_dpx1.dpx')
 ])
-def test_file_is_valid(testfile, valid):
-    """Test file_is_valid boolean return code."""
+def test_valid_files(testfile):
+    """Test that validation summary has info and errors."""
 
-    assert file_is_valid(testfile) == valid
+    for msg_type, info in validate_file(testfile):
+        assert msg_type == MSG["info"]
+        assert info
 
 
 @pytest.mark.parametrize("testfile", [
@@ -50,17 +52,14 @@ def test_file_is_valid(testfile, valid):
     ('tests/data/empty_file.dpx'),
     ('tests/data/invalid_version.dpx')
 ])
-def test_validation_summary_invalid(testfile):
+def test_invalid_files(testfile):
     """Test that validation summary has info and errors."""
 
-    result = validation_summary(testfile)
+    messages = {MSG["info"]: [], MSG["error"]: []}
+    for msg_type, info in validate_file(testfile):
+        assert msg_type in MSG.values()
+        assert info
 
-    assert len(result["errors"]) > 0
+        messages[msg_type].append(info)
 
-
-def test_validation_summary_valid():
-    """Test that valid file does not have errors in summary."""
-
-    result = validation_summary('tests/data/valid_dpx.dpx')
-
-    assert len(result["errors"]) == 0
+    assert len(messages[MSG["error"]]) > 0, testfile

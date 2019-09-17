@@ -1,7 +1,7 @@
 """Data structures"""
 
 
-MSG = dict(info=1, error=2)
+MSG = dict(info='informational', error='invalid_field')
 
 
 class UndefinedMessage(Exception):
