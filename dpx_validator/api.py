@@ -3,7 +3,7 @@
 
 from os import stat
 
-from dpx_validator.models import (MSG, InvalidField, UndefinedMessage)
+from dpx_validator.models import MSG, InvalidField
 from dpx_validator.validations import (
     truncated,
     read_field,
@@ -32,16 +32,17 @@ VALIDATED_FIELDS = [
 def validate_file(path):
     """Loop through `dpx_validator.models.Field` objects in `VALIDATED_FIELDS`
     list for given file. Validation errors and informative messages are yielded
-    with proper `dpx_validator.models.MSG` property as message type.
+    with `dpx_validator.models.MSG` property as message type.
 
     Validation procedures raise InvalidField exception when an invalid field is
-    encountered in header section of the file. The exceptions are catched in
-    `validate_file` and get yielded as errors so that validation can continue
-    to remaining fields.
+    encountered in header section of the file. The exceptions are catched and
+    are yielded as errors so that validation can continue to remaining fields.
 
     In the beginning of validation of a file, the file is checked for
     truncation. If file truncation has happened, validation does not proceed
     further.
+
+    A DPX file is valid if not any `MSG["error"]` messages are yielded.
 
     :path: Path to a DPX file
     :yield: (`dpx_validator.models.MSG` property, message string)
@@ -70,39 +71,3 @@ def validate_file(path):
 
             except InvalidField as invalid:
                 yield (MSG["error"], invalid)
-
-
-def file_is_valid(path):
-    """Check if the file at `path` is valid.
-
-    :path: Path to a DPX file
-    :return: True when valid, False when not"""
-
-    for msg_type, _ in validate_file(path):
-        if msg_type == MSG["error"]:
-            return False
-    return True
-
-
-def validation_summary(path):
-    """Return dict of validation message lists. Keys of the dict
-    are 'info' and 'errors'. The keys contain lists of messages;
-    informational and validation errors. If validation errors exists,
-    the file is not valid.
-
-    :path: Path to a DPX file
-    :return: Dict of validation message lists
-
-    """
-
-    result = {"info": [], "errors": []}
-    for msg_type, msg in validate_file(path):
-        if msg_type == MSG["info"]:
-            result["info"].append(msg)
-        elif msg_type == MSG["error"]:
-            result["errors"].append(str(msg))
-        else:
-            raise UndefinedMessage(
-                "Undefined message type {}".format(msg_type))
-
-    return result
