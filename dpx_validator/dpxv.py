@@ -7,17 +7,26 @@ from dpx_validator.models import MSG, UndefinedMessage
 from dpx_validator.api import validate_file
 
 
-if len(sys.argv) < 2:
-    print('USAGE:\tdpxv FILENAME ...')
-    exit(1)
+class MissingFiles(Exception):
+    """Missing file paths to check."""
 
 
-def main(files):
+def main(files=None):
     """Validate DPX files in paths given as arguments to the program.
     Informative details are written to standard output stream and errors
     are written to standard error stream."""
 
-    for dpx_file in files:
+    paths = None
+
+    if files:
+        paths = list(files)
+    else:
+        paths = sys.argv[1:]
+
+    if not paths:
+        raise MissingFiles('USAGE: dpxv FILENAME ...')
+
+    for dpx_file in paths:
 
         valid = True
 
@@ -37,6 +46,5 @@ def main(files):
         if valid:
             print("File {} is valid".format(dpx_file))
 
-
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    main()
