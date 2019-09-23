@@ -93,7 +93,7 @@ def check_version(field, **kwargs):
         raise InvalidField(
             "Invalid header version %s" % str(field))
 
-    return "File {path} validated as {version}".format(
+    return "Validated as {version}".format(
         path=kwargs["path"],
         version=str(field))
 
