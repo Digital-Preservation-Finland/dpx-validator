@@ -1,3 +1,5 @@
+# -*- encoding: utf8 -*-
+
 import pytest
 
 from dpx_validator.models import MSG
@@ -22,7 +24,7 @@ def test_validate_truncated_file(testfile):
 
 @pytest.mark.parametrize("testfile", [
     ('tests/data/valid_dpx.dpx'),
-    ('tests/data/valid_dpx1.dpx'),
+    ('tests/data/välíd_dpx1.dpx'),
     ('tests/data/corrupted_dpx.dpx'),
     ('tests/data/empty_file.dpx'),
     ('tests/data/invalid_version.dpx')
@@ -37,7 +39,7 @@ def test_validate_file(testfile):
 
 @pytest.mark.parametrize("testfile", [
     ('tests/data/valid_dpx.dpx'),
-    ('tests/data/valid_dpx1.dpx')
+    ('tests/data/välíd_dpx1.dpx')
 ])
 def test_valid_files(testfile):
     """Test that validation summary has info and errors."""

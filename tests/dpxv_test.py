@@ -1,3 +1,5 @@
+# -*- encoding: utf8 -*-
+
 """Tests by invoking the program."""
 
 from subprocess import STDOUT, call, check_output
@@ -10,7 +12,7 @@ from dpx_validator.dpxv import main
 
 @pytest.mark.parametrize("testfile,returncode", [
     ('tests/data/valid_dpx.dpx', 0),
-    ('tests/data/valid_dpx1.dpx', 0),
+    ('tests/data/välíd_dpx1.dpx', 0),
     ('tests/data/corrupted_dpx.dpx', 0),
     ('tests/data/empty_file.dpx', 0),
     ('tests/data/invalid_version.dpx', 0)
@@ -70,7 +72,7 @@ def test_filelists_run_main(capsys):
     """Test that main handles multiple files."""
 
     main(['tests/data/valid_dpx.dpx',
-          'tests/data/valid_dpx1.dpx'])
+          'tests/data/välíd_dpx1.dpx'])
 
     (out, err) = capsys.readouterr()
     print(out, err)
@@ -81,7 +83,7 @@ def test_filelists_run_main(capsys):
     main(['tests/data/valid_dpx.dpx',
           'tests/data/corrupted_dpx.dpx',
           'tests/data/empty_file.dpx',
-          'tests/data/valid_dpx1.dpx',
+          'tests/data/välíd_dpx1.dpx',
           'tests/data/invalid_version.dpx',
           'tests/data/invalid_version.dpx'])
 
