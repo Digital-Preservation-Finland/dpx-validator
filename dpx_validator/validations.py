@@ -94,7 +94,6 @@ def check_version(field, **kwargs):
             "Invalid header version %s" % str(field))
 
     return "Validated as {version}".format(
-        path=kwargs["path"],
         version=str(field))
 
 

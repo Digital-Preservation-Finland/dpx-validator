@@ -46,5 +46,6 @@ def main(files=None):
         if valid:
             print("File {} is valid".format(dpx_file))
 
+
 if __name__ == '__main__':
     main()
