@@ -8,3 +8,4 @@ dist
 venv*/
 .tox
 junit.xml
+PKG-INFO

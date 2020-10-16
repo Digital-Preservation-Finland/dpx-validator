@@ -9,10 +9,17 @@ stages:
   - e2e-distributed
   - rpm-stable
 
-rpm-package:
+rpm-package-rhel7:
   stage: rpm-package
   script:
     - 'rpm-package.sh'
+  except:
+    - master
+
+rpm-package-rhel8:
+  stage: rpm-package
+  script:
+    - 'rpm-package.sh rhel8'
   except:
     - master
 
