@@ -27,7 +27,9 @@ BYTEORDER = ">"
 
 def littleendian_byteorder():
     """Change byte order interpretation to littleendian"""
-
+    # Disable warning about global. Fixing pylint error message would require
+    # refactoring the whole validation logic which is currently unnecessary
+    # pylint: disable=global-statement
     global BYTEORDER
     BYTEORDER = "<"
 
@@ -83,10 +85,12 @@ def offset_to_image(field, **kwargs):
             'file size (%s) ' % (field, kwargs['stat'].st_size))
 
 
-def check_version(field, **kwargs):
+def check_version(field, **_):
     """DPX version should be null terminated 'V2.0' or 'V1.0'."""
 
-    field = b"".join([x for x in field])
+    field = b"".join(list(field))
+    # python2 does not support the maxsplit argument
+    # pylint: disable=use-maxsplit-arg
     field = field.rsplit(b'\0')[0]
 
     if field not in [b'V2.0', b'V1.0']:
@@ -101,15 +105,16 @@ def check_filesize(field, **kwargs):
     """Filesize defined in header should match to that
     what filesystem tells."""
 
-    if not field == kwargs['stat'].st_size:
+    if field == kwargs['stat'].st_size:
+        return "File size in header matches the file size"
 
-        if funny_filesize(field, kwargs['stat'].st_size):
-            return "Valid fuzzy filesize: header {}, stat {} bytes".format(
-                field, kwargs['stat'].st_size)
+    if funny_filesize(field, kwargs['stat'].st_size):
+        return "Valid fuzzy filesize: header {}, stat {} bytes".format(
+            field, kwargs['stat'].st_size)
 
-        raise InvalidField(
-            "Different file sizes from header ({}) and filesystem ({})"
-            .format(str(field), kwargs['stat'].st_size))
+    raise InvalidField(
+        "Different file sizes from header ({}) and filesystem ({})"
+        .format(str(field), kwargs['stat'].st_size))
 
 
 def check_unencrypted(field, **_):

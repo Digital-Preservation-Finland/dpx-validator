@@ -31,18 +31,18 @@ def test_read_field(test_file, offset, data_form, valid):
 
     """
 
-    test_handle = open(test_file.strpath, 'rb')
+    with test_file.open("rb") as test_handle:
 
-    # c = q, b = 113 ...
-    position = dict(offset=offset, data_form=data_form, func=None)
-    print(position)
+        # c = q, b = 113 ...
+        position = dict(offset=offset, data_form=data_form, func=None)
+        print(position)
 
-    if not valid:
-        with pytest.raises(error):
-            read_field(test_handle, position)
+        if not valid:
+            with pytest.raises(error):
+                read_field(test_handle, position)
 
-    else:
-        assert read_field(test_handle, position) == b'q'
+        else:
+            assert read_field(test_handle, position) == b'q'
 
 
 @pytest.mark.parametrize("data,valid", [

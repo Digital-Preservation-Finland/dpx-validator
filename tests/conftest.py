@@ -42,7 +42,7 @@ def littleendian_file(tmpdir):
 
     field2 = bytearray(pack('<I', 20))
     field3 = unpack('<cccccccc', b'V2.0\0   ')
-    field3 = bytearray(b"".join([b for b in field3]))
+    field3 = bytearray(b"".join(list(field3)))
     field4 = bytearray(pack('<I', 1020))
 
     # pad until and fill field15

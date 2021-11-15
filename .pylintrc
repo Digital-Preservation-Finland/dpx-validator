@@ -1,0 +1,3 @@
+[MASTER]
+# Python2 does not support f-string formatting
+disable=consider-using-f-string
