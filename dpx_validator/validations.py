@@ -95,10 +95,10 @@ def check_version(field, **_):
 
     if field not in [b'V2.0', b'V1.0']:
         raise InvalidField(
-            "Invalid header version %s" % str(field))
+            "Invalid header version %s" % field)
 
     return "Validated as {version}".format(
-        version=str(field))
+        version=field.decode('ascii'))
 
 
 def check_filesize(field, **kwargs):
@@ -114,7 +114,7 @@ def check_filesize(field, **kwargs):
 
     raise InvalidField(
         "Different file sizes from header ({}) and filesystem ({})"
-        .format(str(field), kwargs['stat'].st_size))
+        .format(field, kwargs['stat'].st_size))
 
 
 def check_unencrypted(field, **_):
