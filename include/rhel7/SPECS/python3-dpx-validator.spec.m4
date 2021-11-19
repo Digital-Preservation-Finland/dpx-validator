@@ -32,9 +32,7 @@ Python validator for DPX files
 
 %install
 rm -rf $RPM_BUILD_ROOT
-%{__python3} setup.py install -O1 --root $RPM_BUILD_ROOT --record=INSTALLED_FILES.in
-cat INSTALLED_FILES.in | sed 's/^/\//g' >> INSTALLED_FILES
-rm INSTALLED_FILES.in
+%{__python3} setup.py install -O1 --root $RPM_BUILD_ROOT --record=INSTALLED_FILES
 
 # Rename executable to prevent name collision with Python 2 RPM
 sed -i 's/\/bin\/dpxv$/\/bin\/dpxv-3/g' INSTALLED_FILES
