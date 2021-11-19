@@ -22,6 +22,8 @@ BuildArch:      noarch
 Requires:       python3 python36-six
 BuildRequires:  python3-setuptools
 
+Conflicts: dpx-validator
+
 %description
 Python validator for DPX files
 
@@ -35,11 +37,6 @@ rm -rf $RPM_BUILD_ROOT
 %{__python3} setup.py install -O1 --root $RPM_BUILD_ROOT --record=INSTALLED_FILES.in
 cat INSTALLED_FILES.in | sed 's/^/\//g' >> INSTALLED_FILES
 rm INSTALLED_FILES.in
-
-# Rename executable to prevent name collision with Python 2 RPM
-sed -i 's/\/bin\/dpxv$/\/bin\/dpxv-3/g' INSTALLED_FILES
-
-mv %{buildroot}%{_bindir}/dpxv %{buildroot}%{_bindir}/dpxv-3
 
 %post
 
