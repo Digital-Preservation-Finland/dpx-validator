@@ -7,9 +7,30 @@ This script validates a set of header fields in a DPX file.
 Usage
 -----
 
-Install with setuptools:
+Installation and usage requires Python 2.7, or 3.6 or newer.
+The software is tested with Python 3.6 on Centos 7.x release.
 
-        ``python setup.py install``
+For Python 3.6 or newer, create a virtual environment::
+    
+    python3 -m venv venv
+
+For Python 2.7, get python-virtualenv software and create a virtual environment::
+
+    sudo yum install python-virtualenv
+    virtualenv venv
+
+Run the following to activate the virtual environment::
+
+    source venv/bin/activate
+
+Install the required software with commands::
+
+    pip install --upgrade pip setuptools
+    pip install -r requirements_dev.txt
+    pip install .
+
+To deactivate the virtual environment, run ``deactivate``.
+To reactivate it, run the ``source`` command above.
 
 Run validator:
 
@@ -20,8 +41,6 @@ Run validator:
 Or import from `dpx_validator.api` module:
 
         ``dpx_validator.api.validate_file``  
-
-This software is tested with Python 2.7 with Centos 7.x releases.
 
 For more information about DPX, see the SMPTE standard ST 268-1:2014:
 File Format for Digital Moving-Picture Exchange (DPX)
