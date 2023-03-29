@@ -7,17 +7,12 @@ This script validates a set of header fields in a DPX file.
 Usage
 -----
 
-Installation and usage requires Python 2.7, or 3.6 or newer.
+Installation and usage requires Python 3.6 or newer.
 The software is tested with Python 3.6 on Centos 7.x release.
 
-For Python 3.6 or newer, create a virtual environment::
+Create a virtual environment::
     
     python3 -m venv venv
-
-For Python 2.7, get python-virtualenv software and create a virtual environment::
-
-    sudo yum install python-virtualenv
-    virtualenv venv
 
 Run the following to activate the virtual environment::
 
@@ -25,7 +20,7 @@ Run the following to activate the virtual environment::
 
 Install the required software with commands::
 
-    pip install --upgrade pip setuptools
+    pip install --upgrade pip==20.2.4 setuptools
     pip install -r requirements_dev.txt
     pip install .
 
