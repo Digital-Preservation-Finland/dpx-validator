@@ -8,7 +8,7 @@
 %define file_build_number M4_FILE_BUILD_NUMBER
 %define file_commit_ref M4_FILE_COMMIT_REF
 
-Name:           python3-dpx-validator
+Name:           dpx-validator
 Version:        %{file_version}
 Release:        %{file_release_number}%{file_release_tag}.%{file_build_number}.git%{file_commit_ref}%{?dist}
 Summary:        Python validator for DPX files
@@ -25,8 +25,15 @@ BuildRequires:  %{py3_dist pip}
 BuildRequires:  %{py3_dist setuptools}
 BuildRequires:  %{py3_dist wheel}
 
-%description
-Python validator for DPX files
+%global _description %{expand:
+Python validator for DPX files}
+
+%description %_description
+
+%package -n python3-dpx-validator
+Summary:        %{summary}
+
+%description -n python3-dpx-validator %_description
 
 %prep
 %autosetup -n %{file_prefix}-v%{file_version}%{?file_release_tag}-%{file_build_number}-g%{file_commit_ref}
@@ -42,7 +49,7 @@ Python validator for DPX files
 # executables with "-3" suffix should be deprecated.
 cp %{buildroot}%{_bindir}/dpxv %{buildroot}%{_bindir}/dpxv-3
 
-%files -f %{pyproject_files}
+%files -n python3-dpx-validator -f %{pyproject_files}
 %defattr(-,root,root,-)
 %license LICENSE
 %doc README.rst
