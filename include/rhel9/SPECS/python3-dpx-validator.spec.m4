@@ -38,13 +38,15 @@ Python validator for DPX files
 %pyproject_install
 %pyproject_save_files dpx_validator
 
-# Rename executable to prevent name collision with Python 2 RPM
-mv %{buildroot}%{_bindir}/dpxv %{buildroot}%{_bindir}/dpxv-3
+# TODO: executables with "-3" suffix are added to maintain compatibility with our systems.
+# executables with "-3" suffix should be deprecated.
+cp %{buildroot}%{_bindir}/dpxv %{buildroot}%{_bindir}/dpxv-3
 
 %files -f %{pyproject_files}
 %defattr(-,root,root,-)
 %license LICENSE
 %doc README.rst
+%{_bindir}/dpxv
 %{_bindir}/dpxv-3
 
 # TODO: For now changelog must be last, because it is generated automatically
