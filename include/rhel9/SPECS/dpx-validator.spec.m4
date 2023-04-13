@@ -45,7 +45,6 @@ Python validator for DPX files
 cp %{buildroot}%{_bindir}/dpxv %{buildroot}%{_bindir}/dpxv-3
 
 %files -f %{pyproject_files}
-%defattr(-,root,root,-)
 %license LICENSE
 %doc README.rst
 %{_bindir}/dpxv
