@@ -25,15 +25,10 @@ BuildRequires:  %{py3_dist pip}
 BuildRequires:  %{py3_dist setuptools}
 BuildRequires:  %{py3_dist wheel}
 
-%global _description %{expand:
-Python validator for DPX files}
+%py_provides python3-dpx-validator
 
-%description %_description
-
-%package -n python3-dpx-validator
-Summary:        %{summary}
-
-%description -n python3-dpx-validator %_description
+%description
+Python validator for DPX files
 
 %prep
 %autosetup -n %{file_prefix}-v%{file_version}%{?file_release_tag}-%{file_build_number}-g%{file_commit_ref}
@@ -49,7 +44,7 @@ Summary:        %{summary}
 # executables with "-3" suffix should be deprecated.
 cp %{buildroot}%{_bindir}/dpxv %{buildroot}%{_bindir}/dpxv-3
 
-%files -n python3-dpx-validator -f %{pyproject_files}
+%files -f %{pyproject_files}
 %defattr(-,root,root,-)
 %license LICENSE
 %doc README.rst
