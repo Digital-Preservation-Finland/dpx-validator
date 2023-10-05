@@ -4,7 +4,6 @@
 
 from subprocess import STDOUT, call, check_output
 
-import six
 import pytest
 
 from dpx_validator.dpxv import main
@@ -35,8 +34,7 @@ def test_byteorder_switch(littleendian_file):
         ['python', '-m', 'dpx_validator.dpxv', littleendian_file.strpath],
         env={'PYTHONPATH': '.'})
 
-    if six.PY3:
-        output = str(output, "utf-8")
+    output = str(output, "utf-8")
     assert 'Byte order changed' in output
 
 
@@ -49,8 +47,7 @@ def test_empty_file():
         ['python', '-m', 'dpx_validator.dpxv', empty_file],
         env={'PYTHONPATH': '.'}, stderr=STDOUT)
 
-    if six.PY3:
-        output = str(output, "utf-8")
+    output = str(output, "utf-8")
     assert output == 'File %s: Truncated file\n' % empty_file
 
 
@@ -63,8 +60,7 @@ def test_partial_file(test_file):
         ['python', '-m', 'dpx_validator.dpxv', partial_file],
         env={'PYTHONPATH': '.'}, stderr=STDOUT)
 
-    if six.PY3:
-        output = str(output, "utf-8")
+    output = str(output, "utf-8")
     assert output == 'File %s: Truncated file\n' % partial_file
 
 

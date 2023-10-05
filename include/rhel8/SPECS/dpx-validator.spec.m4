@@ -20,7 +20,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
 
 BuildRequires:  python3-setuptools
-Requires:       python3 python3-six
+Requires:       python3
 
 %description
 Python validator for DPX files
