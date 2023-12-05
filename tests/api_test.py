@@ -1,5 +1,4 @@
 """Test the `dpx_validator.api` module"""
-# -*- encoding: utf8 -*-
 
 import pytest
 

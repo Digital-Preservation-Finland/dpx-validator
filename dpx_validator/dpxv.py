@@ -1,6 +1,5 @@
 """DPXv: DPX file format validator"""
 
-from __future__ import print_function
 import sys
 
 from dpx_validator.models import MSG, UndefinedMessage
@@ -33,18 +32,18 @@ def main(files=None):
         for msg_type, msg in validate_file(dpx_file):
 
             if msg_type == MSG["info"]:
-                print("File {}: {}".format(dpx_file, msg))
+                print(f"File {dpx_file}: {msg}")
 
             elif msg_type == MSG["error"]:
                 valid = False
-                print("File {}: {}".format(dpx_file, msg), file=sys.stderr)
+                print(f"File {dpx_file}: {msg}", file=sys.stderr)
 
             else:
                 raise UndefinedMessage(
-                    "Undefined message type {}".format(msg_type))
+                    f"Undefined message type {msg_type}")
 
         if valid:
-            print("File {} is valid".format(dpx_file))
+            print(f"File {dpx_file} is valid")
 
 
 if __name__ == '__main__':

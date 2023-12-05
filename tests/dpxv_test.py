@@ -1,5 +1,3 @@
-# -*- encoding: utf8 -*-
-
 """Tests by invoking the program."""
 
 from subprocess import STDOUT, call, check_output
