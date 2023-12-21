@@ -18,7 +18,7 @@ def test_returncode(testfile, returncode):
     """Test with valid, corrupted and empty files."""
 
     code = call(
-        ['python', '-m', 'dpx_validator.dpxv', testfile],
+        ['python3', '-m', 'dpx_validator.dpxv', testfile],
         env={'PYTHONPATH': '.'})
 
     assert code == returncode
@@ -29,7 +29,7 @@ def test_byteorder_switch(littleendian_file):
     big endian is default."""
 
     output = check_output(
-        ['python', '-m', 'dpx_validator.dpxv', littleendian_file.strpath],
+        ['python3', '-m', 'dpx_validator.dpxv', littleendian_file.strpath],
         env={'PYTHONPATH': '.'})
 
     output = str(output, "utf-8")
@@ -42,7 +42,7 @@ def test_empty_file():
     empty_file = 'tests/data/empty_file.dpx'
 
     output = check_output(
-        ['python', '-m', 'dpx_validator.dpxv', empty_file],
+        ['python3', '-m', 'dpx_validator.dpxv', empty_file],
         env={'PYTHONPATH': '.'}, stderr=STDOUT)
 
     output = str(output, "utf-8")
@@ -55,7 +55,7 @@ def test_partial_file(test_file):
     partial_file = test_file.strpath
 
     output = check_output(
-        ['python', '-m', 'dpx_validator.dpxv', partial_file],
+        ['python3', '-m', 'dpx_validator.dpxv', partial_file],
         env={'PYTHONPATH': '.'}, stderr=STDOUT)
 
     output = str(output, "utf-8")
