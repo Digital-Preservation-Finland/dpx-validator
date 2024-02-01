@@ -3,12 +3,73 @@ Python DPX validator
 
 This script validates a set of header fields in a DPX file.
 
+Requirements
+------------
+
+Installation and usage requires Python 3.9 or newer.
+The software is tested with Python 3.9 on AlmaLinux 9 release.
+
+Installation using RPM packages (preferred)
+-------------------------------------------
+
+Installation on Linux distributions is done by using the RPM Package Manager.
+See how to `configure the PAS-jakelu RPM repositories`_ to setup necessary software sources.
+
+.. _configure the PAS-jakelu RPM repositories: https://www.digitalpreservation.fi/user_guide/installation_of_tools 
+
+After the repository has been added, the package can be installed by running the following command::
+
+    sudo dnf install python3-dpx-validator
 
 Usage
 -----
 
-Installation and usage requires Python 3.6 or newer.
-The software is tested with Python 3.6 on Centos 7.x release.
+Run validator::
+
+    dpxv <path-to-dpx-file>
+
+Validation errors are printed to standard error stream.
+
+Validator can also be imported from the `dpx_validator.api` module::
+
+    dpx_validator.api.validate_file  
+
+For more information about DPX, see the SMPTE standard ST 268-1:2014:
+File Format for Digital Moving-Picture Exchange (DPX)
+
+
+Validated fields
+----------------
+
+These fields from specification are validated:
+
+
+Field 1
+    Magic number of 'SDPX' or 'XPDS' for reversed byte order.
+
+Field 2
+    A valid image data offset value.
+
+Field 3
+    Header format version as either 'V1.0' or 'V2.0'
+
+Field 4
+    DPX file size in header matches what filesystem shows.
+
+Field 15
+    Encryption key is undefined and therefore image is unencrypted.
+
+
+Format characters
+-----------------
+
+`Format characters`_  define form into which binary data is read from a
+header field.
+
+.. _`Format characters`: https://docs.python.org/2/library/struct.html#format-characters
+
+Installation and usage for development purposes using Python Virtualenv
+-----------------------------------------------------------------------
 
 Create a virtual environment::
     
@@ -27,54 +88,6 @@ Install the required software with commands::
 To deactivate the virtual environment, run ``deactivate``.
 To reactivate it, run the ``source`` command above.
 
-Run validator:
-
-        ``dpxv <path-to-dpx-file>``
-
-        Validation errors are printed to standard error stream.
-
-Or import from `dpx_validator.api` module:
-
-        ``dpx_validator.api.validate_file``  
-
-For more information about DPX, see the SMPTE standard ST 268-1:2014:
-File Format for Digital Moving-Picture Exchange (DPX)
-
-
-Validated fields
-----------------
-
-These fields from specification are validated:
-
-
-Field 1
-        Magic number of 'SDPX' or 'XPDS' for reversed byte order.
-
-Field 2
-        A valid image data offset value.
-
-Field 3
-        Header format version as either 'V1.0' or 'V2.0'
-
-Field 4
-        DPX file size in header matches what filesystem shows.
-
-Field 15
-        Encryption key is undefined and therefore image is unencrypted.
-
-
-Format characters
------------------
-
-`Format characters`_  define form into which binary data is read from a
-header field.
-
-.. _`Format characters`: https://docs.python.org/2/library/struct.html#format-characters
-
-
-Developers
-----------
-
 Validation procedures in ``dpx_validator.validations`` can return a single
 informational message and must raise InvalidField exception when value in a
 field is invalid. Validator will continue to the next validation procedure.
@@ -87,7 +100,6 @@ be splitted to multiple procedures.
 Return value from a validation procedure is not required. Exception must be
 raised for a invalid value. New procedures are added to
 ``dpx_validator.api.VALIDATED_FIELDS`` list in ascending ``offset`` order.
-
 
 Copyright
 ---------
