@@ -1,6 +1,11 @@
 Release notes
 =============
 
+Version 0.18
+------------
+
+- Installation instructions for AlmaLinux 9 using RPM packages
+
 Version 0.17
 ------------
 
