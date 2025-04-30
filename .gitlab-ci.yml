@@ -3,6 +3,7 @@
 variables:
   CI_PYTHON_2_VENV: "yes"
   CI_EL9: "yes"
+  CI_SONAR: "yes"
 
 include:
   - project: 'dpres/gitlab-ci-pipeline'
