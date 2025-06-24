@@ -89,9 +89,7 @@ def check_version(field, **_):
     """DPX version should be null terminated 'V2.0' or 'V1.0'."""
 
     field = b"".join(list(field))
-    # python2 does not support the maxsplit argument
-    # pylint: disable=use-maxsplit-arg
-    field = field.rsplit(b'\0')[0]
+    field = field.rsplit(b'\0', 4)[0]
 
     if field not in [b'V2.0', b'V1.0']:
         raise InvalidField(
