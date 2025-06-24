@@ -40,15 +40,10 @@ Python validator for DPX files
 %pyproject_install
 %pyproject_save_files dpx_validator
 
-# TODO: executables with "-3" suffix are added to maintain compatibility with our systems.
-# executables with "-3" suffix should be deprecated.
-cp %{buildroot}%{_bindir}/dpxv %{buildroot}%{_bindir}/dpxv-3
-
 %files -f %{pyproject_files}
 %license LICENSE
 %doc README.rst
 %{_bindir}/dpxv
-%{_bindir}/dpxv-3
 
 # TODO: For now changelog must be last, because it is generated automatically
 # from git log command. Appending should be fixed to happen only after %changelog macro
