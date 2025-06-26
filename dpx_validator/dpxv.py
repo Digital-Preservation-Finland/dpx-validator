@@ -2,8 +2,8 @@
 
 import sys
 
-from dpx_validator.models import MSG, UndefinedMessage
 from dpx_validator.api import validate_file
+from dpx_validator.cli import create_commandline_logs
 
 
 class MissingFiles(Exception):
@@ -24,26 +24,9 @@ def main(files=None):
 
     if not paths:
         raise MissingFiles('USAGE: dpxv FILENAME ...')
-
     for dpx_file in paths:
-
-        valid = True
-
-        for msg_type, msg in validate_file(dpx_file):
-
-            if msg_type == MSG["info"]:
-                print(f"File {dpx_file}: {msg}")
-
-            elif msg_type == MSG["error"]:
-                valid = False
-                print(f"File {dpx_file}: {msg}", file=sys.stderr)
-
-            else:
-                raise UndefinedMessage(
-                    f"Undefined message type {msg_type}")
-
-        if valid:
-            print(f"File {dpx_file} is valid")
+        valid, logs = validate_file(dpx_file, log=True)
+        create_commandline_logs(dpx_file, valid, logs)
 
 
 if __name__ == '__main__':
