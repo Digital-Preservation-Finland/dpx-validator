@@ -19,7 +19,7 @@ __all__ = ('get_version')
 
 import os.path
 import re
-from subprocess import CalledProcessError, Popen, PIPE
+from subprocess import Popen, PIPE
 
 
 version_re = re.compile('^Version: (.+)$', re.M)
@@ -41,7 +41,7 @@ def write_pkg_info():
     d = os.path.abspath(os.path.dirname(__file__))
     try:
         version = re.match(r".*-v([\d\.]+-[^-]+-g[^/]+)", d).group(1)
-    except:
+    except IndexError:
         version = '0.0'
 
     print(
