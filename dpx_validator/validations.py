@@ -15,126 +15,118 @@ written to stderr. If all header fields are valid, success message is written
 to stdout.
 
 """
-from struct import unpack, calcsize
+from struct import calcsize
 
-from dpx_validator.models import InvalidField
+from models import InvalidField
+from interpreter import FileHeaderReader
 from dpx_validator.excessives import funny_filesize
 
 
-# Bigendian byte order by default for struct.unpack
-BYTEORDER = ">"
-
-
-def littleendian_byteorder():
-    """Change byte order interpretation to littleendian"""
-    # Disable warning about global. Fixing pylint error message would require
-    # refactoring the whole validation logic which is currently unnecessary
-    # pylint: disable=global-statement
-    global BYTEORDER
-    BYTEORDER = "<"
-
-
-def read_field(file_handle, field):
-    """Extract header field value.
-
-    :file_handle: `file` handle opened for reading
-    :field: Item from `dpx_validator.api.VALIDATED_FIELDS`"""
-
-    length = calcsize(field["data_form"])
-
-    file_handle.seek(field["offset"])
-    data = file_handle.read(length)
-
-    unpacked = unpack(BYTEORDER+field["data_form"], data)
-
-    if len(unpacked) == 1:
-        return unpacked[0]
-
-    return unpacked
-
-
-def check_magic_number(field, **_):
+def check_magic_number(field, **_) -> str | None:
     """Magic number should be integer of 'SDPX' or 'XPDS'.
 
     As this is the first validation procedure, if validation fails
     attempt byte order flip on the fly.
+    :raises InvalidField: Field is invalid
 
+    :return: None or log strings
     """
 
     # 'SDPX'
     if field == 1396985944:
-        return 'Byte order is big endian'
+        return "Byte order is big endian"
 
     # 'XPDS'
     if field == 1481655379:
-        littleendian_byteorder()
-        return ('Byte order changed and file validated '
-                'with little endian byte order')
+        FileHeaderReader.littleendian_byteorder()
+        return ("Byte order changed and file validated "
+                "with little endian byte order")
 
-    raise InvalidField(
-        'Invalid magic number: %s' % field)
+    raise InvalidField('Invalid magic number: %s' % field)
 
 
-def offset_to_image(field, **kwargs):
-    """Offset to image data defined in header should
-    not be greater than actual size of the file."""
+def check_offset_to_image(field, stat=None, **_) -> None:
+    """
+    Offset to image data defined in header should
+    not be greater than actual size of the file.
 
-    if field > kwargs['stat'].st_size:
+    :raises InvalidField: Field is invalid
+    """
+
+    if field > stat.st_size:
         raise InvalidField(
             'Offset to image (%s) is more than '
-            'file size (%s) ' % (field, kwargs['stat'].st_size))
+            'file size (%s) ' % (field, stat.st_size))
 
 
-def check_version(field, **_):
-    """DPX version should be null terminated 'V2.0' or 'V1.0'."""
+def check_version(field, **_) -> str | None:
+    """
+    DPX version should be null terminated 'V2.0' or 'V1.0'.
+
+    :raises InvalidField: Field is invalid
+
+    :return: None or log with the version string found.
+    """
 
     field = b"".join(list(field))
     field = field.rsplit(b'\0', 4)[0]
 
     if field not in [b'V2.0', b'V1.0']:
-        raise InvalidField(
-            "Invalid header version %s" % field)
+        raise InvalidField("Invalid header version %s" % field)
 
-    return "Validated as {version}".format(
-        version=field.decode('ascii'))
+    return f"Validated as version: {field.decode('ascii')}"
 
 
-def check_filesize(field, **kwargs):
-    """Filesize defined in header should match to that
-    what filesystem tells."""
+def check_filesize(field, stat=None, **_) -> str | None:
+    """
+    Filesize defined in header should match to that
+    what filesystem tells.
 
-    if field == kwargs['stat'].st_size:
+    :raises InvalidField: filesize differs from header
+    """
+    st_size = stat.st_size
+
+    if field == st_size:
         return "File size in header matches the file size"
 
-    if funny_filesize(field, kwargs['stat'].st_size):
-        return "Valid fuzzy filesize: header {}, stat {} bytes".format(
-            field, kwargs['stat'].st_size)
+    if funny_filesize(field, st_size):
+        return "Valid fuzzy filesize: header {}, stat {} bytes"\
+               .format(field, st_size)
 
     raise InvalidField(
         "Different file sizes from header ({}) and filesystem ({})"
-        .format(field, kwargs['stat'].st_size))
+        .format(field, st_size))
 
 
-def check_unencrypted(field, **_):
+def check_unencrypted(field, **_) -> bool | None:
     """Encryption key should be undefined and DPX file unencrypted."""
 
     if 'fffffff' not in hex(field):
         raise InvalidField(
-            "Encryption key in header not "
-            "set to NULL or undefined")
+            "Encryption key in header not set to NULL or undefined")
+    return True
 
 
-def truncated(filesize, last_field):
+def check_truncated(field, stat=None, **_) -> bool:
     """Check for truncation to appropriately invalidate a partial file.
     Empty files are treated as truncated files.
 
     This function helps to prevent 'struct.unpack' errors when file length is
     between zero and offset of the last validated field.
 
-    :filesize: Size of the file
-    :last_field: Field class with highest offset (and data_form size)
+    :field: Field class with highest offset (and data_form size)
     :returns: True for truncation
 
     """
 
-    return filesize < last_field["offset"] + calcsize(last_field["data_form"])
+    return stat.st_size < field["offset"] + calcsize(field["data_form"])
+
+
+VALIDATOR_CHECKS = [
+    check_truncated,
+    check_magic_number,
+    check_offset_to_image,
+    check_version,
+    check_filesize,
+    check_unencrypted
+]
