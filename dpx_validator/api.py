@@ -1,38 +1,21 @@
 """API functions for dpx-validator."""
 
-
 from os import stat
 
-from dpx_validator.models import MSG, InvalidField
-from dpx_validator.validations import (
-    truncated,
-    read_field,
-    check_magic_number,
-    offset_to_image,
-    check_version,
-    check_filesize,
-    check_unencrypted)
-
-# List header fields for validation, from the beginning of file and
-#  in ascending order by offset
-#
-# Define a section from file to extract for validation.
-# :offset: Starting point of a field from the beginning of file
-# :data_form: Python's Format character(s) of excepted binary data
-# :func: A validation procedure from `dpxv.validations`
-VALIDATED_FIELDS = [
-    dict(offset=0, data_form='I', func=check_magic_number),
-    dict(offset=4, data_form='I', func=offset_to_image),
-    dict(offset=8, data_form='c'*8, func=check_version),
-    dict(offset=16, data_form='I', func=check_filesize),
-    dict(offset=660, data_form='I', func=check_unencrypted)
-]
+from dpx_validator.models import MSG, InvalidField, HEADER_INFORMATION
+from dpx_validator.interpreter import FileHeaderReader
+from dpx_validator.validations import VALIDATOR_CHECKS
+from dpx_validator.utils import log_time
 
 
-def validate_file(path):
-    """Loop through `dpx_validator.models.Field` objects in `VALIDATED_FIELDS`
-    list for given file. Validation errors and informative messages are yielded
-    with `dpx_validator.models.MSG` property as message type.
+def validate_file(path, log=False) -> bool | dict:
+    """
+    Loop through the list of headers inside
+    `dpx_validator.models.HEADER_INFORMATION` combined with the validations
+    listed in dpx_validator.validations.VALIDATOR_CHECKS.
+    Validation errors and informative messages are collected to a list
+    comprised of a tuple which includes `dpx_validator.models.MSG` property
+    as message type, date logged and a message
 
     Validation procedures raise InvalidField exception when an invalid field is
     encountered in header section of the file. The exceptions are catched and
@@ -42,32 +25,46 @@ def validate_file(path):
     truncation. If file truncation has happened, validation does not proceed
     further.
 
-    A DPX file is valid if not any `MSG["error"]` messages are yielded.
+    A DPX file is valid if all of the checks pass without creating
+    `MSG["error"]` messages.
 
-    :path: Path to a DPX file
-    :yield: (`dpx_validator.models.MSG` property, message string)
+    :param path: Path to a DPX file
+    :keyword log: Determine if the function produces logs or not,
+        defaults to False
+    :return: boolean for validity or if logs are on dictionary with keys:
+        `valid`, `info` and `errors`. info and errors contain logs with tuple:
+        (`dpx_validator.models.MSG` property, message string)
 
     """
-
     file_stat = stat(path)
+    logs = []
+    valid = True
 
-    if truncated(file_stat.st_size, VALIDATED_FIELDS[-1]):
-        yield (MSG["error"], "Truncated file")
+    if VALIDATOR_CHECKS[1]():
+        logs.append((MSG["error"], log_time() + "Truncated file"))
         return
-
     with open(path, "rb") as file_handle:
-        for position in VALIDATED_FIELDS:
-
+        for header, func in zip(HEADER_INFORMATION, VALIDATOR_CHECKS[1:]):
             try:
-                field = read_field(file_handle, position)
-                info = position["func"](
+                field = FileHeaderReader.read_field(file_handle, header)
+
+                info = func(
                     field,
                     file_handle=file_handle,
                     path=path,
                     stat=file_stat)
 
-                if info:
-                    yield (MSG["info"], info)
+                if info and log:
+                    logs.append((MSG["info"], log_time() + info))
 
             except InvalidField as invalid:
-                yield (MSG["error"], invalid)
+                if not log:
+                    return False
+                valid = False
+                logs.append((MSG["error"], log_time() + invalid))
+    if not log:
+        return True
+    return {
+        "valid": valid,
+        "logs": logs,
+        }
