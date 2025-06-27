@@ -1,14 +1,18 @@
 """API functions for dpx-validator."""
 
+from __future__ import annotations
 from os import stat
 
 from dpx_validator.models import MSG, InvalidField, HEADER_INFORMATION
 from dpx_validator.file_header_reader import FileHeaderReader
 from dpx_validator.validations import VALIDATOR_CHECKS
 from dpx_validator.utils import log_time
+from datetime import datetime
 
 
-def validate_file(path, log=False) -> bool | dict:
+def validate_file(path, log=False) -> bool | tuple[
+        bool, tuple[str, datetime, str]
+        ]:
     """
     Loop through the list of headers inside
     `dpx_validator.models.HEADER_INFORMATION` combined with the validations
@@ -32,8 +36,9 @@ def validate_file(path, log=False) -> bool | dict:
     :param log: Determine if the function produces logs or not,
         defaults to False
     :return: ``bool`` for validity **or** if ``log=True`` then return a
-        dictionary ``{valid, log}``, the key ``log`` contains multiple
-        tuples which contains the type, date and message of the log:
+        tuple ``(valid, log)``. first value indicates validity and second
+        value contains multiple tuples which contains
+        the type, date and message of the log:
         ``(dpx_validator.models.MSG, datetime , string)``
 
     """
@@ -41,9 +46,10 @@ def validate_file(path, log=False) -> bool | dict:
     logs = []
     valid = True
 
-    if VALIDATOR_CHECKS[1]():
+    if VALIDATOR_CHECKS[0](HEADER_INFORMATION[-1], stat=file_stat):
         logs.append((MSG["error"], log_time(), "Truncated file"))
-        return
+        return (False, logs) if log else False
+
     with open(path, "rb") as file_handle:
         for header, func in zip(HEADER_INFORMATION, VALIDATOR_CHECKS[1:]):
             try:
@@ -63,9 +69,4 @@ def validate_file(path, log=False) -> bool | dict:
                     return False
                 valid = False
                 logs.append((MSG["error"], log_time(), invalid))
-    if not log:
-        return True
-    return {
-        "valid": valid,
-        "logs": logs,
-        }
+    return (valid, logs) if log else True
