@@ -15,9 +15,10 @@ written to stderr. If all header fields are valid, success message is written
 to stdout.
 
 """
+from __future__ import annotations
 from struct import calcsize
 
-from models import InvalidField
+from dpx_validator.models import InvalidField
 from dpx_validator.file_header_reader import FileHeaderReader
 from dpx_validator.excessives import funny_filesize
 
@@ -107,7 +108,7 @@ def check_unencrypted(field, **_) -> bool | None:
     return True
 
 
-def check_truncated(field, stat=None, **_) -> bool:
+def check_truncated(header, stat=None, **_) -> bool:
     """Check for truncation to appropriately invalidate a partial file.
     Empty files are treated as truncated files.
 
@@ -119,7 +120,7 @@ def check_truncated(field, stat=None, **_) -> bool:
 
     """
 
-    return stat.st_size < field["offset"] + calcsize(field["data_form"])
+    return stat.st_size < header["offset"] + calcsize(header["data_form"])
 
 
 VALIDATOR_CHECKS = [
