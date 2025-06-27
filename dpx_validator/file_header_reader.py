@@ -10,12 +10,12 @@ class FileHeaderReader:
     byte_order = ">"
 
     @staticmethod
-    def littleendian_byteorder(self):
+    def littleendian_byteorder():
         """Change byte order interpretation to littleendian"""
         FileHeaderReader.byte_order = "<"
 
     @staticmethod
-    def read_field(self, file_handle, header):
+    def read_field(file_handle, header):
         """Extract header field value.
 
         :file_handle: `file` handle opened for reading
@@ -26,7 +26,8 @@ class FileHeaderReader:
         file_handle.seek(header["offset"])
         data = file_handle.read(length)
 
-        unpacked = unpack(self.byte_order+header["data_form"], data)
+        unpacked = unpack(
+            FileHeaderReader.byte_order+header["data_form"], data)
 
         if len(unpacked) == 1:
             return unpacked[0]
