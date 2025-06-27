@@ -32,8 +32,8 @@ def validate_file(path, log=False) -> bool | dict:
     :keyword log: Determine if the function produces logs or not,
         defaults to False
     :return: boolean for validity or if logs are on dictionary with keys:
-        `valid`, `info` and `errors`. info and errors contain logs with tuple:
-        (`dpx_validator.models.MSG` property, message string)
+        `valid`, `log`. logs contain tuples:
+        (`dpx_validator.models.MSG` property, datetime , message string)
 
     """
     file_stat = stat(path)
@@ -41,7 +41,7 @@ def validate_file(path, log=False) -> bool | dict:
     valid = True
 
     if VALIDATOR_CHECKS[1]():
-        logs.append((MSG["error"], log_time() + "Truncated file"))
+        logs.append((MSG["error"], log_time(), "Truncated file"))
         return
     with open(path, "rb") as file_handle:
         for header, func in zip(HEADER_INFORMATION, VALIDATOR_CHECKS[1:]):
@@ -55,13 +55,13 @@ def validate_file(path, log=False) -> bool | dict:
                     stat=file_stat)
 
                 if info and log:
-                    logs.append((MSG["info"], log_time() + info))
+                    logs.append((MSG["info"], log_time(), info))
 
             except InvalidField as invalid:
                 if not log:
                     return False
                 valid = False
-                logs.append((MSG["error"], log_time() + invalid))
+                logs.append((MSG["error"], log_time(), invalid))
     if not log:
         return True
     return {

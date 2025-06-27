@@ -1,10 +1,8 @@
 import datetime
 
 
-def log_time():
+def log_time() -> datetime:
     """
-    Pretty time
-
     Can be later used to alter the time format of logs if necessary
     """
-    return f" :: {datetime.datetime.now()} :: "
+    return datetime.datetime.now()

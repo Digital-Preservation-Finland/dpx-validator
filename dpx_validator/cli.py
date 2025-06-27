@@ -5,14 +5,14 @@ from dpx_validator.models import MSG, UndefinedMessage
 
 def create_commandline_logs(dpx_file, valid, logs):
 
-    for msg_type, msg in logs:
-        print(f"File {dpx_file} : {msg}")
+    for msg_type, time, msg in logs:
+        print(f"File {dpx_file} :: {time} :: {msg}")
 
         if msg_type == MSG["info"]:
-            print(f"File {dpx_file}: {msg}")
+            print(f"File {dpx_file} :: {time} :: {msg}")
 
         elif msg_type == MSG["error"]:
-            print(f"File {dpx_file}: {msg}", file=sys.stderr)
+            print(f"File {dpx_file} :: {time} :: {msg}", file=sys.stderr)
 
         else:
             raise UndefinedMessage(
