@@ -3,13 +3,13 @@ import datetime
 
 def log_time() -> str:
     """
-    Return ctime form string representing current datetime
+    Return datetime represented as a string in the iso format.
     """
-    return datetime.datetime.now().ctime()
+    return datetime.datetime.now().isoformat()
 
 
-def log_to_datetime(ctime: str) -> datetime:
+def log_time_to_datetime(isotime: str) -> datetime:
     """
-    Convert ctime back to datetime
+    Convert string which is in iso format back to datetime object
     """
-    return datetime.datetime.strptime(ctime, "%a %b %d %H:%M:%S %Y")
+    return datetime.datetime.fromisoformat(isotime)
