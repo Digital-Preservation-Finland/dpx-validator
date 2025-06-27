@@ -29,11 +29,12 @@ def validate_file(path, log=False) -> bool | dict:
     `MSG["error"]` messages.
 
     :param path: Path to a DPX file
-    :keyword log: Determine if the function produces logs or not,
+    :param log: Determine if the function produces logs or not,
         defaults to False
-    :return: boolean for validity or if logs are on dictionary with keys:
-        `valid`, `log`. logs contain tuples:
-        (`dpx_validator.models.MSG` property, datetime , message string)
+    :return: ``bool`` for validity **or** if ``log=True`` then return a
+        dictionary ``{valid, log}``, the key ``log`` contains multiple
+        tuples which contains the type, date and message of the log:
+        ``(dpx_validator.models.MSG, datetime , string)``
 
     """
     file_stat = stat(path)
