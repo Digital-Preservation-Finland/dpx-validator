@@ -3,7 +3,7 @@
 from os import stat
 
 from dpx_validator.models import MSG, InvalidField, HEADER_INFORMATION
-from dpx_validator.interpreter import FileHeaderReader
+from dpx_validator.file_header_reader import FileHeaderReader
 from dpx_validator.validations import VALIDATOR_CHECKS
 from dpx_validator.utils import log_time
 

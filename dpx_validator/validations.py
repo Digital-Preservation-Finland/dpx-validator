@@ -18,7 +18,7 @@ to stdout.
 from struct import calcsize
 
 from models import InvalidField
-from interpreter import FileHeaderReader
+from dpx_validator.file_header_reader import FileHeaderReader
 from dpx_validator.excessives import funny_filesize
 
 
