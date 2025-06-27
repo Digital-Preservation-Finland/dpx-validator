@@ -8,13 +8,12 @@ import pytest
 
 from dpx_validator.models import InvalidField
 from dpx_validator.validations import (
-    BYTEORDER,
-    read_field,
     check_magic_number,
-    offset_to_image,
+    check_offset_to_image,
     check_version,
     check_filesize,
     check_unencrypted)
+from dpx_validator.file_header_reader import FileHeaderReader
 
 
 @pytest.mark.parametrize("offset,data_form,valid", [
@@ -39,10 +38,10 @@ def test_read_field(test_file, offset, data_form, valid):
 
         if not valid:
             with pytest.raises(error):
-                read_field(test_handle, position)
+                FileHeaderReader.read_field(test_handle, position)
 
         else:
-            assert read_field(test_handle, position) == b'q'
+            assert FileHeaderReader.read_field(test_handle, position) == b'q'
 
 
 @pytest.mark.parametrize("data,valid", [
@@ -53,7 +52,7 @@ def test_read_field(test_file, offset, data_form, valid):
 def test_check_magic_number(data, valid):
     """Test magic number is validated as 'SDPX' or 'XDPS'."""
 
-    data = unpack(BYTEORDER+'I', data)[0]
+    data = unpack(FileHeaderReader.byte_order+'I', data)[0]
 
     if not valid:
         with pytest.raises(InvalidField):
@@ -71,12 +70,12 @@ def test_offset_to_image(test_file, test_file_oob):
     out_of_bounds_stat = stat(test_file_oob.strpath)
 
     with pytest.raises(InvalidField):
-        offset_to_image(
+        check_offset_to_image(
             out_of_bounds_stat.st_size,
             path=test_file.strpath,
             stat=file_stat)
 
-    offset_to_image(
+    check_offset_to_image(
         file_stat.st_size,
         path=test_file.strpath,
         stat=file_stat)
