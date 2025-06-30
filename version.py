@@ -41,7 +41,7 @@ def write_pkg_info():
     d = os.path.abspath(os.path.dirname(__file__))
     try:
         version = re.match(r".*-v([\d\.]+-[^-]+-g[^/]+)", d).group(1)
-    except IndexError:
+    except AttributeError:
         version = '0.0'
 
     print(
