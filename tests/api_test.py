@@ -12,14 +12,12 @@ from dpx_validator.api import validate_file
 def test_validate_truncated_file(testfile):
     """Truncated file stop validation of the file."""
 
-    validate = validate_file(testfile)
-    msg_type, info = next(validate)
+    valid, log = validate_file(testfile, log=True)
+    assert valid is False
 
-    assert msg_type == MSG["error"]
-    assert info
-
-    with pytest.raises(StopIteration):
-        next(validate)
+    assert MSG["error"] in log[0]
+    assert "Truncated file" in log[0]
+    assert log
 
 
 @pytest.mark.parametrize("testfile", [
@@ -30,11 +28,29 @@ def test_validate_truncated_file(testfile):
     ('tests/data/invalid_version.dpx')
 ])
 def test_validate_file(testfile):
-    """Test that validation summary has info and errors."""
+    """
+    Test that validation gives validity and logs with log=True
+    """
 
-    for msg_type, info in validate_file(testfile):
-        assert msg_type in MSG.values()
-        assert info
+    valid, log = validate_file(testfile, log=True)
+    assert valid in [True, False]
+    assert log
+
+
+@pytest.mark.parametrize("testfile", [
+    ('tests/data/valid_dpx.dpx'),
+    ('tests/data/välíd_dpx1.dpx'),
+    ('tests/data/corrupted_dpx.dpx'),
+    ('tests/data/empty_file.dpx'),
+    ('tests/data/invalid_version.dpx')
+])
+def test_validate_file_creates_logs(testfile):
+    """
+    Test that validation creates logs
+    """
+
+    _, log = validate_file(testfile, log=True)
+    assert len(log) > 0
 
 
 @pytest.mark.parametrize("testfile", [
@@ -42,11 +58,10 @@ def test_validate_file(testfile):
     ('tests/data/välíd_dpx1.dpx')
 ])
 def test_valid_files(testfile):
-    """Test that validation summary has info and errors."""
+    """Test that validation completes without errors"""
 
-    for msg_type, info in validate_file(testfile):
-        assert msg_type == MSG["info"]
-        assert info
+    valid = validate_file(testfile, log=False)
+    assert valid is True
 
 
 @pytest.mark.parametrize("testfile", [
@@ -55,13 +70,8 @@ def test_valid_files(testfile):
     ('tests/data/invalid_version.dpx')
 ])
 def test_invalid_files(testfile):
-    """Test that validation summary has info and errors."""
+    """Test that file is invalid"""
 
-    messages = {MSG["info"]: [], MSG["error"]: []}
-    for msg_type, info in validate_file(testfile):
-        assert msg_type in MSG.values()
-        assert info
-
-        messages[msg_type].append(info)
-
-    assert len(messages[MSG["error"]]) > 0, testfile
+    # Without logging only bool is returned
+    valid = validate_file(testfile, log=False)
+    assert not valid
