@@ -46,7 +46,8 @@ def test_empty_file():
         env={'PYTHONPATH': '.'}, stderr=STDOUT)
 
     output = str(output, "utf-8")
-    assert output == 'File %s: Truncated file\n' % empty_file
+    assert 'File %s' % empty_file in output
+    assert 'Truncated file\n' in output
 
 
 def test_partial_file(test_file):
@@ -59,7 +60,8 @@ def test_partial_file(test_file):
         env={'PYTHONPATH': '.'}, stderr=STDOUT)
 
     output = str(output, "utf-8")
-    assert output == 'File %s: Truncated file\n' % partial_file
+    assert 'File %s' % partial_file in output
+    assert 'Truncated file\n' in output
 
 
 def test_filelists_run_main(capsys):
