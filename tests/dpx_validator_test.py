@@ -6,14 +6,11 @@ from struct import unpack, error
 
 import pytest
 
-from dpx_validator.models import InvalidField
-from dpx_validator.validations import (
-    check_magic_number,
-    check_offset_to_image,
-    check_version,
-    check_filesize,
-    check_unencrypted)
-from dpx_validator.file_header_reader import FileHeaderReader
+from dpx_validator.messages import InvalidField
+from dpx_validator.dpx_validator import DpxValidator
+from dpx_validator.file_header_reader import \
+    FileHeaderReader, \
+    BIGENDIAN_BYTEORDER
 
 
 @pytest.mark.parametrize("offset,data_form,valid", [
@@ -32,16 +29,17 @@ def test_read_field(test_file, offset, data_form, valid):
 
     with test_file.open("rb") as test_handle:
 
+        reader = FileHeaderReader(test_handle)
         # c = q, b = 113 ...
-        position = dict(offset=offset, data_form=data_form, func=None)
+        position = {"offset": offset, "data_form": data_form}
         print(position)
 
         if not valid:
             with pytest.raises(error):
-                FileHeaderReader.read_field(test_handle, position)
+                reader.read_field(position)
 
         else:
-            assert FileHeaderReader.read_field(test_handle, position) == b'q'
+            assert reader.read_field(position) == b'q'
 
 
 @pytest.mark.parametrize("data,valid", [
@@ -52,33 +50,33 @@ def test_read_field(test_file, offset, data_form, valid):
 def test_check_magic_number(data, valid):
     """Test magic number is validated as 'SDPX' or 'XDPS'."""
 
-    data = unpack(FileHeaderReader.byte_order+'I', data)[0]
+    validator = DpxValidator(None, 'test')
+
+    data = unpack(BIGENDIAN_BYTEORDER+'I', data)[0]
 
     if not valid:
         with pytest.raises(InvalidField):
-            check_magic_number(data, path='test')
+            validator.check_magic_number(field=data)
 
     else:
-        check_magic_number(data, path='test')
+        validator.check_magic_number(field=data)
 
 
 def test_offset_to_image(test_file, test_file_oob):
     """Offset to image should be some value less than filesize.
     Trick validation procedure with two different different files."""
-
+    validator = DpxValidator(None, None)
     file_stat = stat(test_file.strpath)
     out_of_bounds_stat = stat(test_file_oob.strpath)
 
     with pytest.raises(InvalidField):
-        check_offset_to_image(
-            out_of_bounds_stat.st_size,
-            path=test_file.strpath,
-            stat=file_stat)
+        validator.check_offset_to_image(
+            field=out_of_bounds_stat.st_size,
+            path=test_file.strpath)
 
-    check_offset_to_image(
-        file_stat.st_size,
-        path=test_file.strpath,
-        stat=file_stat)
+    validator.check_offset_to_image(
+        field=file_stat.st_size,
+        path=test_file.strpath)
 
 
 @pytest.mark.parametrize("data,valid", [
@@ -91,46 +89,45 @@ def test_offset_to_image(test_file, test_file_oob):
 def test_check_version(data, valid):
     """Test the 8 bytes field is null terminated 'V2.0' or 'V1.0'."""
 
+    validator = DpxValidator(None, None)
     field_length = 8
-    byteorder = '>'  # big endian
-    data_form = byteorder+('c'*field_length)
+    data_form = BIGENDIAN_BYTEORDER+('c'*field_length)
 
-    print(data_form)
     unpacked = unpack(data_form, data)
 
     if not valid:
         with pytest.raises(InvalidField):
-            check_version(unpacked, path='test')
+            validator.check_version(field=unpacked)
 
     else:
-        check_version(unpacked, path='test')
+        validator.check_version(field=unpacked)
 
 
 def test_check_filesize(test_file, test_file_oob):
     """Filesize in header should be the same as from filesystem.
     Trick validation procedure with two different different files."""
-
+    validator = DpxValidator(None, None)
     file_stat = stat(test_file.strpath)
     out_of_bounds_stat = stat(test_file_oob.strpath)
 
     with pytest.raises(InvalidField):
-        check_filesize(
-            out_of_bounds_stat.st_size,
-            path=test_file.strpath,
-            stat=file_stat)
+        validator.check_filesize(
+            field=out_of_bounds_stat.st_size,
+            path=test_file.strpath)
 
-    check_filesize(file_stat.st_size,
-                   path=test_file.strpath,
-                   stat=file_stat)
+    validator.check_filesize(
+        field=file_stat.st_size,
+        path=test_file.strpath)
 
 
 def test_check_unencrypted():
     """Test should pass only undefined (0xffffffff) encryption key."""
 
+    validator = DpxValidator(None, None)
     # 0xffffffff
     unencrypted = 4294967295
 
     with pytest.raises(InvalidField):
-        check_unencrypted(1, path='test')
+        validator.check_unencrypted(field=1)
 
-    check_unencrypted(unencrypted, path='test')
+    validator.check_unencrypted(field=unencrypted)
