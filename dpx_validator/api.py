@@ -1,12 +1,9 @@
 """API functions for dpx-validator."""
 
 from __future__ import annotations
-from os import stat
 
-from dpx_validator.models import MSG, InvalidField, HEADER_INFORMATION
-from dpx_validator.file_header_reader import FileHeaderReader
-from dpx_validator.validations import VALIDATOR_CHECKS
-from dpx_validator.utils import log_time
+from dpx_validator.messages import MSG, InvalidField
+from dpx_validator.dpx_validator import DpxValidator
 from datetime import datetime
 
 
@@ -15,10 +12,10 @@ def validate_file(path, log=False) -> bool | tuple[
         ]:
     """
     Loop through the list of headers inside
-    `dpx_validator.models.HEADER_INFORMATION` combined with the validations
+    `` combined with the validations
     listed in dpx_validator.validations.VALIDATOR_CHECKS.
     Validation errors and informative messages are collected to a list
-    comprised of a tuple which includes `dpx_validator.models.MSG` property
+    comprised of a tuple which includes `dpx_validator.messages.MSG` property
     as message type, date logged and a message
 
     Validation procedures raise InvalidField exception when an invalid field is
@@ -39,34 +36,31 @@ def validate_file(path, log=False) -> bool | tuple[
         tuple ``(valid, log)``. first value indicates validity and second
         value contains multiple tuples which contains
         the type, date and message of the log:
-        ``(dpx_validator.models.MSG, datetime , string)``
+        ``(dpx_validator.messages.MSG, datetime , string)``
 
     """
-    file_stat = stat(path)
+
     logs = []
     valid = True
 
-    if VALIDATOR_CHECKS[0](HEADER_INFORMATION[-1], stat=file_stat):
-        logs.append((MSG["error"], log_time(), "Truncated file"))
+    if DpxValidator.check_truncated(path):
+        logs.append((MSG["error"], "Truncated file"))
         return (False, logs) if log else False
 
     with open(path, "rb") as file_handle:
-        for header, func in zip(HEADER_INFORMATION, VALIDATOR_CHECKS[1:]):
+
+        validator = DpxValidator(file_handle, path)
+        generator = validator._basic_procedures_generator()
+        while True:
             try:
-                field = FileHeaderReader.read_field(file_handle, header)
-
-                info = func(
-                    field,
-                    file_handle=file_handle,
-                    path=path,
-                    stat=file_stat)
-
-                if info and log:
-                    logs.append((MSG["info"], log_time(), info))
-
+                info = next(generator)
+                logs.append((MSG["info"], info))
             except InvalidField as invalid:
-                if not log:
-                    return False
+                logs.append((MSG["error"], invalid))
                 valid = False
-                logs.append((MSG["error"], log_time(), invalid))
+                if not log:
+                    return valid
+            except StopIteration:
+                break
+
     return (valid, logs) if log else True
