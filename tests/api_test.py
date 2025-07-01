@@ -2,7 +2,7 @@
 
 import pytest
 
-from dpx_validator.models import MSG
+from dpx_validator.messages import MSG
 from dpx_validator.api import validate_file
 
 
