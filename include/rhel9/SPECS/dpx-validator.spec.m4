@@ -43,7 +43,7 @@ Python validator for DPX files
 %files -f %{pyproject_files}
 %license LICENSE
 %doc README.rst
-%{_bindir}/dpxv
+%{_bindir}/dpx-validator
 
 # TODO: For now changelog must be last, because it is generated automatically
 # from git log command. Appending should be fixed to happen only after %changelog macro
