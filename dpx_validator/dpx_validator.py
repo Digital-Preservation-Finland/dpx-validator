@@ -2,9 +2,8 @@
 
 DpxValidator class and HEADER_POS
 
-DpxValidator includes the validation procedures and
-functions defined in this class are used to validate various fields in a DPX
-file header.
+DpxValidator contains procedure functions which
+are used to validate various fields in a dpx file header.
 
 A field in header and a validation procedure for the field are defined as item
 in this files `HEADER_POS` constant.
@@ -26,6 +25,8 @@ from __future__ import annotations
 from struct import calcsize
 from os import stat
 from io import BufferedReader
+from typing import Callable
+
 from dpx_validator.messages import InvalidField, MSG
 from dpx_validator.file_header_reader import FileHeaderReader
 from dpx_validator.excessives import funny_filesize
@@ -49,7 +50,8 @@ HEADER_POS = {
 
 class DpxValidator:
     """
-    Dpx validator class holds all of the checks used to validate dpx files
+    Dpx validator class holds all of the procedures used to validate dpx files
+    and provides a `run_basic_procedures` function to complete each procedure
     """
 
     def __init__(self, file_handle: BufferedReader, path: str):
@@ -191,7 +193,7 @@ class DpxValidator:
     # ************* Static procedures ****************
 
     @staticmethod
-    def pre_check_truncated(
+    def check_truncated(
         path: str, last_field: BufferedReader = HEADER_POS["encryption_key"]
     ) -> bool:
         """Check for truncation to appropriately invalidate a partial file.
@@ -213,24 +215,30 @@ class DpxValidator:
 
     # ************* Procedures end *******************
 
-    def _basic_procedures_generator(self):
-        """
-        Create a generator from all of the checks to iterate through.
-        """
-
-        # If more are added
-        yield self.check_magic_number()
-        yield self.check_offset_to_image()
-        yield self.check_version()
-        yield self.check_filesize()
-        yield self.check_unencrypted()
+    BASIC_PROCEDURES: list[Callable] = [
+        check_magic_number,
+        check_offset_to_image,
+        check_version,
+        check_filesize,
+        check_unencrypted
+    ]
 
     def run_basic_procedures(
         self, cut_on_error: bool = False
     ) -> tuple[bool, list]:
         """
-        Validates each of the checks and collects the messages returned by
-            each one
+        Loop through the list of basic procedures inside
+        `BASIC_PROCEDURES` and execute each one.
+
+        Validation errors and informative messages are collected to a list
+        comprised of a tuple: (`dpx_validator.messages.MSG`, str) where
+        the first value indicates the type of message and the second content
+        of the message
+
+        Validation procedures raise InvalidField exception when an invalid
+        field is encountered in the header section of the file. The exceptions
+        are caught and collected so that validation can continue to loop
+        through remaining fields.
 
         :param cut_on_error: Allows to stop iterating over the checks and
             return early.
@@ -240,16 +248,14 @@ class DpxValidator:
         """
         validity = True
         messages = []
-        generator = self._basic_procedures_generator()
-        # + 1 to raise stop iterrations
-        for _ in range(len(HEADER_POS) + 1):
+        for check in self.BASIC_PROCEDURES:
             try:
-                info = next(generator)
+                info = check(self)
                 messages.append((MSG["info"], info))
             except InvalidField as invalid:
                 messages.append((MSG["error"], invalid))
                 validity = False
                 if cut_on_error:
                     return (validity, messages)
-            except StopIteration:
-                return (validity, messages)
+
+        return (validity, messages)
