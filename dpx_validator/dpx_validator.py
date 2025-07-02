@@ -29,7 +29,6 @@ from typing import Callable
 
 from dpx_validator.messages import InvalidField, MSG
 from dpx_validator.file_header_reader import FileHeaderReader
-from dpx_validator.excessives import funny_filesize
 
 
 # Dictionary for header fields for validation, from the beginning of file and
@@ -163,7 +162,7 @@ class DpxValidator:
         if field == st_size:
             return "File size in header matches the file size"
 
-        if funny_filesize(field, st_size):
+        if DpxValidator.check_funny_filesize(field, st_size):
             return "Valid fuzzy filesize: header {}, stat {} bytes".format(
                 field, st_size
             )
@@ -190,7 +189,7 @@ class DpxValidator:
                 "Encryption key in header not set to NULL or undefined"
             )
 
-    # ************* Static procedures ****************
+    # ************* Special procedures ****************
 
     @staticmethod
     def check_truncated(
@@ -212,6 +211,25 @@ class DpxValidator:
         return stat(path).st_size < last_field["offset"] + calcsize(
             last_field["data_form"]
         )
+
+    @staticmethod
+    def check_funny_filesize(field: BufferedReader, stat):
+        """Allow filesizes with padding to 8192 bytes.
+
+        :field: Header field stating filesize
+        :filesize: Filesize determined by DPX validator
+        :return: True if valid fuzzy filesize, otherwise False
+
+        """
+
+        if not stat > field:
+            return False
+        if not stat % 8192 == 0:
+            return False
+        if not stat - field < 8192:
+            return False
+
+        return True
 
     # ************* Procedures end *******************
 
