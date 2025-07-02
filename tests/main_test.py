@@ -71,7 +71,6 @@ def test_filelists_run_main(capsys):
           'tests/data/välíd_dpx1.dpx'])
 
     (out, err) = capsys.readouterr()
-    print(out, err)
 
     assert not err
     assert out
@@ -84,7 +83,6 @@ def test_filelists_run_main(capsys):
           'tests/data/invalid_version.dpx'])
 
     (out, err) = capsys.readouterr()
-    print(out, err)
 
     assert out
     assert "Invalid header version" in err

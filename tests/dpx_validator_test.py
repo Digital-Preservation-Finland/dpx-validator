@@ -32,7 +32,6 @@ def test_read_field(test_file, offset, data_form, valid):
         reader = FileHeaderReader(test_handle)
         # c = q, b = 113 ...
         position = {"offset": offset, "data_form": data_form}
-        print(position)
 
         if not valid:
             with pytest.raises(error):
