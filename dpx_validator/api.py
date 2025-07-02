@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from dpx_validator.messages import MSG, InvalidField
+from dpx_validator.messages import MSG
 from dpx_validator.dpx_validator import DpxValidator
 from datetime import datetime
 
 
-def validate_file(path, log=False) -> bool | tuple[
+def validate_file(path: str, log=False) -> bool | tuple[
         bool, tuple[str, datetime, str]
         ]:
     """
@@ -43,24 +43,15 @@ def validate_file(path, log=False) -> bool | tuple[
     logs = []
     valid = True
 
-    if DpxValidator.check_truncated(path):
+    if DpxValidator.pre_check_truncated(path):
         logs.append((MSG["error"], "Truncated file"))
         return (False, logs) if log else False
 
     with open(path, "rb") as file_handle:
 
         validator = DpxValidator(file_handle, path)
-        generator = validator._basic_procedures_generator()
-        while True:
-            try:
-                info = next(generator)
-                logs.append((MSG["info"], info))
-            except InvalidField as invalid:
-                logs.append((MSG["error"], invalid))
-                valid = False
-                if not log:
-                    return valid
-            except StopIteration:
-                break
-
-    return (valid, logs) if log else True
+        valid, log_out = validator.run_basic_procedures(cut_on_error=not log)
+        if log:
+            logs.extend(log_out)
+            return (valid, logs)
+        return valid
