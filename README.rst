@@ -26,13 +26,13 @@ Usage
 
 Run validator::
 
-    dpxv <path-to-dpx-file>
+    dpx-validator <path-to-dpx-file>
 
 Validation errors are printed to standard error stream.
 
 Validator can also be imported from the `dpx_validator.api` module::
 
-    dpx_validator.api.validate_file  
+    dpx_validator.api.validate_file
 
 For more information about DPX, see the SMPTE standard ST 268-1:2014:
 File Format for Digital Moving-Picture Exchange (DPX)
@@ -81,25 +81,26 @@ Run the following to activate the virtual environment::
 
 Install the required software with commands::
 
-    pip install --upgrade pip==20.2.4 setuptools
+    pip install --upgrade setuptools
     pip install -r requirements_dev.txt
     pip install .
 
 To deactivate the virtual environment, run ``deactivate``.
 To reactivate it, run the ``source`` command above.
 
-Validation procedures in ``dpx_validator.validations`` can return a single
-informational message and must raise InvalidField exception when value in a
-field is invalid. Validator will continue to the next validation procedure.
+Validation procedures are located in the ``DpxValidator`` class inside the 
+``dpx_validator.dpx_validator`` module. Each validation procedure can return
+a single informational message and must raise InvalidField exception when value
+in a field is invalid. Validator will continue to the next validation procedure.
 Each validation procedure output and error should contain final outcome of
 the procedure, that is, a procedure should not finish with partial info or
 errors from the procedure. Complex validation procedures for a single field
 in header should store intermediate results until finishing the procedure or
-be splitted to multiple procedures.
+be splitted to multiple procedures. Procedures can be ran in order from
 
 Return value from a validation procedure is not required. Exception must be
-raised for a invalid value. New procedures are added to
-``dpx_validator.api.VALIDATED_FIELDS`` list in ascending ``offset`` order.
+raised for a invalid value. New procedures are added to the
+``dpx_validator.dpx_validator.DpxValidator.BASIC_PROCEDURES`` list.
 
 Copyright
 ---------
