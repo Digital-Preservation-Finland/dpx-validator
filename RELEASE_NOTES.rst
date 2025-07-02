@@ -1,6 +1,14 @@
 Release notes
 =============
 
+Unreleased
+----------
+
+- Rewrite most of the validator in a more object oriented way
+- Rename console command from dpxv to dpx-validator
+- api changed to provide logs if needed from `validate_file` function
+- Documentation improvements
+
 Version 0.18
 ------------
 
