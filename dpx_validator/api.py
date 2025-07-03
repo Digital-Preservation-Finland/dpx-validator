@@ -4,11 +4,10 @@ from __future__ import annotations
 
 from dpx_validator.messages import MSG
 from dpx_validator.dpx_validator import DpxValidator
-from datetime import datetime
 
 
 def validate_file(path: str, log=False) -> bool | tuple[
-        bool, tuple[str, datetime, str]
+        bool, tuple[str, str]
         ]:
     """
     validate file handles the validation of the dpx file. Each validation
@@ -33,8 +32,8 @@ def validate_file(path: str, log=False) -> bool | tuple[
     :return: ``bool`` for validity **or** if ``log=True`` then return a
         tuple ``(valid, log)``. first value indicates validity and second
         value contains multiple tuples which contains
-        the type, date and message of the log:
-        ``(dpx_validator.messages.MSG, datetime , string)``
+        the types and message of the log:
+        ``(dpx_validator.messages.MSG, string)``
 
     """
 
