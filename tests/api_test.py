@@ -2,7 +2,7 @@
 
 import pytest
 
-from dpx_validator.messages import MSG
+from dpx_validator.messages import MessageType
 from dpx_validator.api import validate_file
 
 
@@ -15,7 +15,7 @@ def test_validate_truncated_file(testfile):
     valid, log = validate_file(testfile, log=True)
     assert valid is False
 
-    assert MSG["error"] in log[0]
+    assert MessageType.ERROR in log[0]
     assert "Truncated file" in log[0]
     assert log
 

@@ -27,7 +27,7 @@ from os import stat
 from io import BufferedReader
 from typing import Callable
 
-from dpx_validator.messages import InvalidField, MSG
+from dpx_validator.messages import InvalidField, MessageType
 from dpx_validator.file_header_reader import FileHeaderReader
 
 
@@ -269,9 +269,9 @@ class DpxValidator:
         for check in self.BASIC_PROCEDURES:
             try:
                 info = check(self)
-                messages.append((MSG["info"], info))
+                messages.append((MessageType.INFO, info))
             except InvalidField as invalid:
-                messages.append((MSG["error"], invalid))
+                messages.append((MessageType.ERROR, invalid))
                 validity = False
                 if cut_on_error:
                     return (validity, messages)

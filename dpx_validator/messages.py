@@ -1,8 +1,12 @@
 import sys
 
+from enum import Enum
 """Data structures"""
 
-MSG = dict(info='informational', error='invalid_field')
+
+class MessageType(str, Enum):
+    INFO = "informational",
+    ERROR = "invalid_field"
 
 
 class UndefinedMessage(Exception):
@@ -22,10 +26,10 @@ def create_commandline_messages(dpx_file, valid, logs):
     for msg_type, msg in logs:
         print(f"File {dpx_file} :: {msg}")
 
-        if msg_type == MSG["info"]:
+        if msg_type == MessageType.INFO:
             print(f"File {dpx_file} :: {msg}")
 
-        elif msg_type == MSG["error"]:
+        elif msg_type == MessageType.ERROR:
             print(f"File {dpx_file} :: {msg}", file=sys.stderr)
 
         else:

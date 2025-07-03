@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dpx_validator.messages import MSG
+from dpx_validator.messages import MessageType
 from dpx_validator.dpx_validator import DpxValidator
 
 
@@ -24,7 +24,7 @@ def validate_file(path: str, log=False) -> bool | tuple[
     Without log messages the validation will stop after the first error.
 
     A DPX file is valid if all of the checks pass without creating
-    `MSG["error"]` messages.
+    `MessageType.ERROR` messages.
 
     :param path: Path to a DPX file
     :param log: Determine if the function produces log messages or not,
@@ -41,7 +41,7 @@ def validate_file(path: str, log=False) -> bool | tuple[
     valid = True
 
     if DpxValidator.check_truncated(path):
-        logs.append((MSG["error"], "Truncated file"))
+        logs.append((MessageType.ERROR, "Truncated file"))
         return (False, logs) if log else False
 
     with open(path, "rb") as file_handle:
