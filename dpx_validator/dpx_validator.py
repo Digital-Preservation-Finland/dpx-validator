@@ -58,6 +58,11 @@ class DpxValidator:
 
         self.path = path
 
+        # Collected during procedures
+        self.magic_number = None
+        self.file_size_in_bytes = None
+        self.file_version = None
+
     # ************* Procedures start *****************
 
     def check_magic_number(self, field=None) -> str:
