@@ -25,7 +25,7 @@ def main(files=None):
     if not paths:
         raise MissingFiles('USAGE: dpxv FILENAME ...')
     for dpx_file in paths:
-        valid, logs = validate_file(dpx_file, log=True)
+        valid, _, logs = validate_file(dpx_file, log=True)
         create_commandline_messages(dpx_file, valid, logs)
 
 

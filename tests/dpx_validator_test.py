@@ -41,12 +41,12 @@ def test_read_field(test_file, offset, data_form, valid):
             assert reader.read_field(position) == b'q'
 
 
-@pytest.mark.parametrize("data,valid", [
-    (b"SDPX", True),
-    (b"XPDS", True),
-    (b"fals", False)
+@pytest.mark.parametrize("data,valid,output", [
+    (b"SDPX", True, "SDPX"),
+    (b"XPDS", True, "XPDS"),
+    (b"fals", False, None)
 ])
-def test_check_magic_number(data, valid):
+def test_check_magic_number(data, valid, output):
     """Test magic number is validated as 'SDPX' or 'XDPS'."""
 
     validator = DpxValidator(None, 'test')
@@ -59,6 +59,7 @@ def test_check_magic_number(data, valid):
 
     else:
         validator.check_magic_number(field=data)
+        assert validator.magic_number == output
 
 
 def test_offset_to_image(test_file, test_file_oob):
@@ -76,16 +77,17 @@ def test_offset_to_image(test_file, test_file_oob):
     validator.check_offset_to_image(
         field=file_stat.st_size,
         path=test_file.strpath)
+    assert validator.file_size_in_bytes == file_stat.st_size
 
 
-@pytest.mark.parametrize("data,valid", [
-    (b"V2.0\0  y", True),
-    (b"V2.0  - ", False),
-    (b"V1.0\0  y", True),
-    (b"V1.0  =\0", False),
-    (b"V3.0\0 - ", False)
+@pytest.mark.parametrize("data, valid, output", [
+    (b"V2.0\0  y", True, "V2.0"),
+    (b"V2.0  - ", False, "V2.0"),
+    (b"V1.0\0  y", True, "V1.0"),
+    (b"V1.0  =\0", False, "V1.0"),
+    (b"V3.0\0 - ", False, None)
 ])
-def test_check_version(data, valid):
+def test_check_version(data, valid, output):
     """Test the 8 bytes field is null terminated 'V2.0' or 'V1.0'."""
 
     validator = DpxValidator(None, None)
@@ -100,6 +102,7 @@ def test_check_version(data, valid):
 
     else:
         validator.check_version(field=unpacked)
+        assert validator.file_version == output
 
 
 def test_check_filesize(test_file, test_file_oob):
@@ -117,6 +120,7 @@ def test_check_filesize(test_file, test_file_oob):
     validator.check_filesize(
         field=file_stat.st_size,
         path=test_file.strpath)
+    assert validator.file_size_in_bytes == file_stat.st_size
 
 
 def test_check_unencrypted():

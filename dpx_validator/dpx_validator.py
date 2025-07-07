@@ -82,11 +82,13 @@ class DpxValidator:
 
         # 'SDPX'
         if field == 1396985944:
+            self.magic_number = "SDPX"
             return "Byte order is big endian"
 
         # 'XPDS'
         if field == 1481655379:
             self.reader.littleendian_byteorder()
+            self.magic_number = "XPDS"
             return (
                 "Byte order changed and file validated "
                 "with little endian byte order"
@@ -112,13 +114,13 @@ class DpxValidator:
             path = self.path
         if not field:
             field = self.reader.read_field(HEADER_POS["image"])
+        if not self.file_size_in_bytes:
+            self.file_size_in_bytes = stat(path).st_size
 
-        st_size = stat(path).st_size
-
-        if field > st_size:
+        if field > self.file_size_in_bytes:
             raise InvalidField(
                 "Offset to image (%s) is more than "
-                "file size (%s) " % (field, st_size)
+                "file size (%s) " % (field, self.file_size_in_bytes)
             )
 
     def check_version(self, field: BufferedReader = None) -> str:
@@ -138,6 +140,8 @@ class DpxValidator:
 
         if version not in [b"V2.0", b"V1.0"]:
             raise InvalidField("Invalid header version %s" % version)
+
+        self.file_version = version.decode('ascii')
 
         return f"Validated as version: {version.decode('ascii')}"
 
@@ -162,19 +166,20 @@ class DpxValidator:
         if not field:
             field = self.reader.read_field(HEADER_POS["filesize"])
 
-        st_size = stat(path).st_size
+        if not self.file_size_in_bytes:
+            self.file_size_in_bytes = stat(path).st_size
 
-        if field == st_size:
+        if field == self.file_size_in_bytes:
             return "File size in header matches the file size"
 
-        if DpxValidator.check_funny_filesize(field, st_size):
+        if DpxValidator.check_funny_filesize(field, self.file_size_in_bytes):
             return "Valid fuzzy filesize: header {}, stat {} bytes".format(
-                field, st_size
+                field, self.file_size_in_bytes
             )
 
         raise InvalidField(
             "Different file sizes from header ({}) and filesystem ({})".format(
-                field, st_size
+                field, self.file_size_in_bytes
             )
         )
 

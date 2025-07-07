@@ -7,8 +7,8 @@ from dpx_validator.dpx_validator import DpxValidator
 
 
 def validate_file(path: str, log=False) -> bool | tuple[
-        bool, tuple[str, str]
-        ]:
+    (bool, dict), tuple[str, dict, str]
+]:
     """
     validate file handles the validation of the dpx file. Each validation
     procedure can be found from `dpx_validator.dpx_validator.DpxValidator`
@@ -29,26 +29,35 @@ def validate_file(path: str, log=False) -> bool | tuple[
     :param path: Path to a DPX file
     :param log: Determine if the function produces log messages or not,
         defaults to False
-    :return: ``bool`` for validity **or** if ``log=True`` then return a
-        tuple ``(valid, log)``. first value indicates validity and second
-        value contains multiple tuples which contains
-        the types and message of the log:
+    :return: a tuple with ``(bool, dict)`` values where first bool is for
+        validity and dict includes keys for "magic_number", "size" and
+        "version" of the file
+        if ``log=True`` then return a tuple ``(valid, dict, log)``.
+        the log returns a list of tuples with a type and a message:
         ``(dpx_validator.messages.MSG, string)``
 
     """
 
-    logs = []
     valid = True
+    output = {
+        "magic_number": None,
+        "size": None,
+        "version": None
+    }
+    logs = []
 
     if DpxValidator.check_truncated(path):
         logs.append((MessageType.ERROR, "Truncated file"))
-        return (False, logs) if log else False
+        return (False, output, logs) if log else (False, output)
 
     with open(path, "rb") as file_handle:
 
         validator = DpxValidator(file_handle, path)
         valid, log_out = validator.run_basic_procedures(cut_on_error=not log)
+        output["magic_number"] = validator.magic_number
+        output["size"] = validator.file_size_in_bytes
+        output["version"] = validator.file_version
         if log:
             logs.extend(log_out)
-            return (valid, logs)
-        return valid
+            return (valid, output, logs)
+        return (valid, output)
