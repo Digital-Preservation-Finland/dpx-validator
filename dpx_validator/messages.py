@@ -26,7 +26,7 @@ def create_commandline_messages(dpx_file, valid, logs):
     for msg_type, msg in logs:
         print(f"File {dpx_file} :: {msg}")
 
-        if msg_type == MessageType.INFO:
+        if msg_type == MessageType.INFO and msg:
             print(f"File {dpx_file} :: {msg}")
 
         elif msg_type == MessageType.ERROR:
