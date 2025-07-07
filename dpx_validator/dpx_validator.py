@@ -279,9 +279,10 @@ class DpxValidator:
         for check in self.BASIC_PROCEDURES:
             try:
                 info = check(self)
-                messages.append((MessageType.INFO, info))
+                if info:
+                    messages.append((MessageType.INFO, info))
             except InvalidField as invalid:
-                messages.append((MessageType.ERROR, invalid))
+                messages.append((MessageType.ERROR, repr(invalid)))
                 validity = False
                 if cut_on_error:
                     return (validity, messages)
