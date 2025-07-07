@@ -12,12 +12,13 @@ from dpx_validator.api import validate_file
 def test_validate_truncated_file(testfile):
     """Truncated file stop validation of the file."""
 
-    valid, output, log = validate_file(testfile, log=True)
+    valid, _, log = validate_file(testfile, log=True)
     assert valid is False
 
     assert MessageType.ERROR in log[0]
     assert "Truncated file" in log[0]
-    assert log
+    with pytest.raises(IndexError):
+        assert log[1]
 
 
 @pytest.mark.parametrize("testfile", [
@@ -29,12 +30,17 @@ def test_validate_truncated_file(testfile):
 ])
 def test_validate_file(testfile):
     """
-    Test that validation gives validity and logs with log=True
+    Test that validation gives validity and output
     """
 
-    valid, output, log = validate_file(testfile, log=True)
+    valid, output = validate_file(testfile)
     assert valid in [True, False]
-    assert log
+    if valid:
+        assert output["version"] in ["V1.0", "V2.0"]
+        # Expect the file to be at least as long as the header field lengths
+        # combined in for an empty DPX file
+        assert output["size"] >= 16640
+        assert output["magic_number"] in ["SDPX", "XPDS"]
 
 
 @pytest.mark.parametrize("testfile", [
@@ -46,11 +52,15 @@ def test_validate_file(testfile):
 ])
 def test_validate_file_creates_logs(testfile):
     """
-    Test that validation creates logs
+    Test that validation creates valid log messages
     """
 
-    _, _, log = validate_file(testfile, log=True)
-    assert len(log) > 0
+    _, _, logs = validate_file(testfile, log=True)
+    assert len(logs) > 0
+    for log in logs:
+        assert log[0] in MessageType
+        assert type(log[1]) is str
+        assert len(log[1]) >= 5  # Useful log messages have some length
 
 
 @pytest.mark.parametrize("testfile", [
