@@ -12,7 +12,7 @@ from dpx_validator.api import validate_file
 def test_validate_truncated_file(testfile):
     """Truncated file stop validation of the file."""
 
-    valid, _, log = validate_file(testfile, log=True)
+    valid, _, log = validate_file(testfile)
     assert valid is False
 
     assert MessageType.ERROR in log[0]
@@ -33,7 +33,7 @@ def test_validate_file(testfile):
     Test that validation gives validity and output
     """
 
-    valid, output = validate_file(testfile)
+    valid, output, _ = validate_file(testfile)
     assert valid in [True, False]
     if valid:
         assert output["version"] in ["V1.0", "V2.0"]
@@ -55,7 +55,7 @@ def test_validate_file_creates_logs(testfile):
     Test that validation creates valid log messages
     """
 
-    _, _, logs = validate_file(testfile, log=True)
+    _, _, logs = validate_file(testfile)
     assert len(logs) > 0
     for log in logs:
         assert log[0] in MessageType
@@ -70,7 +70,7 @@ def test_validate_file_creates_logs(testfile):
 def test_valid_files(testfile):
     """Test that validation completes without errors"""
 
-    valid, _ = validate_file(testfile, log=False)
+    valid, _, _ = validate_file(testfile)
     assert valid is True
 
 
@@ -83,5 +83,5 @@ def test_invalid_files(testfile):
     """Test that file is invalid"""
 
     # Without logging only bool is returned
-    valid, _ = validate_file(testfile, log=False)
+    valid, _, _ = validate_file(testfile)
     assert not valid
