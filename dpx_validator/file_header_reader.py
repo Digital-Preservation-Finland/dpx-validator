@@ -16,7 +16,7 @@ class FileHeaderReader:
         self.byte_order = BIGENDIAN_BYTEORDER
         self.file_handle = file_handle
 
-    def littleendian_byteorder(self) -> None:
+    def set_littleendian_byteorder(self) -> None:
         """Change byte order interpretation to littleendian"""
         self.byte_order = LITTLEENDIAN_BYTEORDER
 

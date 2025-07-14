@@ -84,7 +84,7 @@ class DpxValidator:
             return "Byte order is big endian"
 
         if field == b"XPDS":
-            self.reader.littleendian_byteorder()
+            self.reader.set_littleendian_byteorder()
             self.magic_number = "XPDS"
             return (
                 "Byte order changed and file validated "
