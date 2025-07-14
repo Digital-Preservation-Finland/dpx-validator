@@ -39,7 +39,7 @@ from dpx_validator.file_header_reader import FileHeaderReader
 # :offset: Starting point of a field from the beginning of file
 # :data_form: Python's Format character(s) of excepted binary data
 HEADER_POS = {
-    "magic_number": {"offset": 0, "data_form": "I"},
+    "magic_number": {"offset": 0, "data_form": "4s"},
     "image": {"offset": 4, "data_form": "I"},
     "version": {"offset": 8, "data_form": "c" * 8},
     "filesize": {"offset": 16, "data_form": "I"},
@@ -79,13 +79,11 @@ class DpxValidator:
         """
         field = self.reader.read_field(HEADER_POS["magic_number"])
 
-        # 'SDPX'
-        if field == 1396985944:
+        if field == b"SDPX":
             self.magic_number = "SDPX"
             return "Byte order is big endian"
 
-        # 'XPDS'
-        if field == 1481655379:
+        if field == b"XPDS":
             self.reader.littleendian_byteorder()
             self.magic_number = "XPDS"
             return (
