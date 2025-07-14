@@ -37,7 +37,7 @@ from dpx_validator.file_header_reader import FileHeaderReader
 # Define a section from file to extract for validation.
 # :key: Describes what the offset is for
 # :offset: Starting point of a field from the beginning of file
-# :data_form: Python's Format character(s) of excepted binary data
+# :data_form: Format string used by `struct` to unpack expected binary data
 HEADER_POS = {
     "magic_number": {"offset": 0, "data_form": "4s"},
     "image": {"offset": 4, "data_form": "I"},
