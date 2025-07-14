@@ -24,12 +24,13 @@ def test_returncode(testfile, returncode):
     assert code == returncode
 
 
-def test_byteorder_switch(littleendian_file):
+def test_byteorder_switch(test_file_factory):
     """Try switching byteorder for little endian files as
     big endian is default."""
+    littleendian_file = test_file_factory.create_file(magic_number=b"XPDS")
 
     output = check_output(
-        ['python3', '-m', 'dpx_validator.main', littleendian_file.strpath],
+        ['python3', '-m', 'dpx_validator.main', str(littleendian_file)],
         env={'PYTHONPATH': '.'})
 
     output = str(output, "utf-8")

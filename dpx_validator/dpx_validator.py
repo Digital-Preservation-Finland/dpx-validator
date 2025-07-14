@@ -65,7 +65,7 @@ class DpxValidator:
 
     # ************* Procedures start *****************
 
-    def check_magic_number(self, field=None) -> str:
+    def check_magic_number(self) -> str:
         """Magic number should be integer of 'SDPX' or 'XPDS'.
 
         As this is the first validation procedure, if validation fails
@@ -77,8 +77,7 @@ class DpxValidator:
 
         :returns: log string
         """
-        if not field:
-            field = self.reader.read_field(HEADER_POS["magic_number"])
+        field = self.reader.read_field(HEADER_POS["magic_number"])
 
         # 'SDPX'
         if field == 1396985944:
@@ -96,9 +95,7 @@ class DpxValidator:
 
         raise InvalidField("Invalid magic number: %s" % field)
 
-    def check_offset_to_image(
-        self, field: BufferedReader = None, path: str = None
-    ) -> None:
+    def check_offset_to_image(self) -> None:
         """
         Offset to image data defined in header should
         not be greater than actual size of the file.
@@ -110,12 +107,10 @@ class DpxValidator:
 
         :returns: None
         """
-        if not path:
-            path = self.path
-        if not field:
-            field = self.reader.read_field(HEADER_POS["image"])
+        field = self.reader.read_field(HEADER_POS["image"])
+
         if not self.file_size_in_bytes:
-            self.file_size_in_bytes = stat(path).st_size
+            self.file_size_in_bytes = stat(self.path).st_size
 
         if field > self.file_size_in_bytes:
             raise InvalidField(
@@ -123,7 +118,7 @@ class DpxValidator:
                 "file size (%s) " % (field, self.file_size_in_bytes)
             )
 
-    def check_version(self, field: BufferedReader = None) -> str:
+    def check_version(self) -> str:
         """
         DPX version should be null terminated 'V2.0' or 'V1.0'.
 
@@ -133,8 +128,8 @@ class DpxValidator:
 
         :returns: log string
         """
-        if not field:
-            field = self.reader.read_field(HEADER_POS["version"])
+        field = self.reader.read_field(HEADER_POS["version"])
+
         version = b"".join(list(field))
         version = version.rsplit(b"\0", 4)[0]
 
@@ -145,11 +140,7 @@ class DpxValidator:
 
         return f"Validated as version: {version.decode('ascii')}"
 
-    def check_filesize(
-        self,
-        field: BufferedReader = None,
-        path: str = None,
-    ) -> str:
+    def check_filesize(self) -> str:
         """
         Filesize defined in header should match to that
         what filesystem tells.
@@ -161,13 +152,10 @@ class DpxValidator:
 
         :returns: log string
         """
-        if not path:
-            path = self.path
-        if not field:
-            field = self.reader.read_field(HEADER_POS["filesize"])
+        field = self.reader.read_field(HEADER_POS["filesize"])
 
         if not self.file_size_in_bytes:
-            self.file_size_in_bytes = stat(path).st_size
+            self.file_size_in_bytes = stat(self.path).st_size
 
         if field == self.file_size_in_bytes:
             return "File size in header matches the file size"
@@ -183,7 +171,7 @@ class DpxValidator:
             )
         )
 
-    def check_unencrypted(self, field: BufferedReader = None) -> None:
+    def check_unencrypted(self) -> None:
         """
         Encryption key should be undefined and DPX file unencrypted.
 
@@ -191,8 +179,7 @@ class DpxValidator:
 
         :returns: None
         """
-        if not field:
-            field = self.reader.read_field(HEADER_POS["encryption_key"])
+        field = self.reader.read_field(HEADER_POS["encryption_key"])
 
         if "fffffff" not in hex(field):
             raise InvalidField(
