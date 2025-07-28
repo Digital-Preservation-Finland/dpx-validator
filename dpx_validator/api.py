@@ -6,9 +6,7 @@ from dpx_validator.messages import MessageType
 from dpx_validator.dpx_validator import DpxValidator
 
 
-def validate_file(path: str) -> bool | tuple[
-    (bool, dict), tuple[str, dict, str]
-]:
+def validate_file(path: str) -> tuple[bool, dict, list]:
     """
     validate file handles the validation of the dpx file. Each validation
     procedure can be found from `dpx_validator.dpx_validator.DpxValidator`
@@ -24,10 +22,10 @@ def validate_file(path: str) -> bool | tuple[
     `MessageType.ERROR` messages.
 
     :param path: Path to a DPX file
-    :return: a tuple with ``(bool, dict, logs)`` values where first bool is for
+    :return: a tuple with ``(bool, dict, list)`` values where first bool is for
         validity and dict includes keys for "magic_number", "size" and
-        "version" of the file. the logs includes tuples with a type and
-        a message: ``(dpx_validator.messages.MessageType, string)``
+        "version" of the file. the list includes logs with tuples with a type
+        and a message: ``(dpx_validator.messages.MessageType, string)``
 
     """
 

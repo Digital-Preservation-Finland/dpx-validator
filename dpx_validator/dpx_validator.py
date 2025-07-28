@@ -26,6 +26,7 @@ from struct import calcsize
 from os import stat
 from io import BufferedReader
 from typing import Callable
+from os import PathLike
 
 from dpx_validator.messages import InvalidField, MessageType
 from dpx_validator.file_header_reader import FileHeaderReader
@@ -71,8 +72,6 @@ class DpxValidator:
         As this is the first validation procedure, if validation fails
         attempt byte order flip on the fly.
 
-        :param field: custom field, defaults to HEADER_POS["magic_number"]
-
         :raises InvalidField: Field is invalid
 
         :returns: log string
@@ -98,9 +97,6 @@ class DpxValidator:
         Offset to image data defined in header should
         not be greater than actual size of the file.
 
-        :param field: custom field, defaults to HEADER_POS["image"]
-        :param path: custom path, defaults to path given to the constructor
-
         :raises InvalidField: Field is invalid
 
         :returns: None
@@ -119,8 +115,6 @@ class DpxValidator:
     def check_version(self) -> str:
         """
         DPX version should be null terminated 'V2.0' or 'V1.0'.
-
-        :param field: custom field, defaults to HEADER_POS["version"]
 
         :raises InvalidField: Field is invalid
 
@@ -142,9 +136,6 @@ class DpxValidator:
         """
         Filesize defined in header should match to that
         what filesystem tells.
-
-        :param field: custom field, defaults to HEADER_POS["filesize"]
-        :param path: custom path, defaults to path given to the constructor
 
         :raises InvalidField: filesize differs from header
 
@@ -173,8 +164,6 @@ class DpxValidator:
         """
         Encryption key should be undefined and DPX file unencrypted.
 
-        :param field: custom field, defaults to HEADER_POS["encryption_key"]
-
         :returns: None
         """
         field = self.reader.read_field(HEADER_POS["encryption_key"])
@@ -188,16 +177,17 @@ class DpxValidator:
 
     @staticmethod
     def check_truncated(
-        path: str, last_field: BufferedReader = HEADER_POS["encryption_key"]
+        path: int | str | bytes | PathLike[str] | PathLike[bytes],
+        last_field: BufferedReader = HEADER_POS["encryption_key"]
     ) -> bool:
         """Check for truncation to appropriately invalidate a partial file.
         Empty files are treated as truncated files.
 
         This function helps to prevent 'struct.unpack' errors when file length
         is between zero and offset of the last validated field.
-
-        :last_field: Field class with highest offset (and data_form size),
-            defaults to encryption_key field from HEADER_POS
+        :param path: Path to the file checked
+        :param last_field: Field class with highest offset (and data_form size)
+            , defaults to encryption_key field from HEADER_POS
 
         :returns: True for truncation
 
@@ -208,7 +198,7 @@ class DpxValidator:
         )
 
     @staticmethod
-    def check_funny_filesize(field: BufferedReader, stat):
+    def check_funny_filesize(field: BufferedReader, filesize):
         """Allow filesizes with padding to 8192 bytes.
 
         :field: Header field stating filesize
@@ -217,11 +207,11 @@ class DpxValidator:
 
         """
 
-        if not stat > field:
+        if not filesize > field:
             return False
-        if not stat % 8192 == 0:
+        if not filesize % 8192 == 0:
             return False
-        if not stat - field < 8192:
+        if not filesize - field < 8192:
             return False
 
         return True
