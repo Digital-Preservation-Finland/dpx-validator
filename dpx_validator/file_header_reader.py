@@ -1,9 +1,14 @@
 from struct import unpack, calcsize
-from typing import Any
 from io import BufferedReader
+from typing import TypedDict, Any
 
 LITTLEENDIAN_BYTEORDER = "<"
 BIGENDIAN_BYTEORDER = ">"
+
+
+class FieldSpec(TypedDict):
+    offset: int
+    data_form: str
 
 
 class FileHeaderReader:
@@ -20,21 +25,19 @@ class FileHeaderReader:
         """Change byte order interpretation to littleendian"""
         self.byte_order = LITTLEENDIAN_BYTEORDER
 
-    def read_field(self, header) -> tuple[Any, ...]:
-        """Extract header field value.
+    def read_field(
+        self, header: FieldSpec
+    ) -> tuple[Any, ...]:
+        """Reads and unpacks a field from the file header based on the
+        specified offset and data format.
 
-        :file_handle: `file` handle opened for reading
-        :field: Item from `dpx_validator.api.VALIDATED_FIELDS`"""
+        :param header: Dict containing the header offset and data format.
+        :returns: Tuple containing the unpacked data in the specified format.
+        """
 
         length = calcsize(header["data_form"])
 
         self.file_handle.seek(header["offset"])
         data = self.file_handle.read(length)
 
-        unpacked = unpack(
-            self.byte_order+header["data_form"], data)
-
-        if len(unpacked) == 1:
-            return unpacked[0]
-
-        return unpacked
+        return unpack(self.byte_order + header["data_form"], data)

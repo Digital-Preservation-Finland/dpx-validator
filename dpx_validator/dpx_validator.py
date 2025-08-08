@@ -23,13 +23,12 @@ call the `validate` function which will run each of the procedures
 
 from __future__ import annotations
 from struct import calcsize
-from os import stat
+from os import stat, PathLike
 from io import BufferedReader
-from typing import Callable
-from os import PathLike
+from typing import Callable, TypedDict
 
 from dpx_validator.messages import InvalidField, MessageType
-from dpx_validator.file_header_reader import FileHeaderReader
+from dpx_validator.file_header_reader import FileHeaderReader, FieldSpec
 
 
 # Dictionary for header fields for validation, from the beginning of file and
@@ -39,7 +38,17 @@ from dpx_validator.file_header_reader import FileHeaderReader
 # :key: Describes what the offset is for
 # :offset: Starting point of a field from the beginning of file
 # :data_form: Format string used by `struct` to unpack expected binary data
-HEADER_POS = {
+
+
+class HeaderPos(TypedDict):
+    magic_number: FieldSpec
+    image: FieldSpec
+    version: FieldSpec
+    filesize: FieldSpec
+    encryption_key: FieldSpec
+
+
+HEADER_POS: HeaderPos = {
     "magic_number": {"offset": 0, "data_form": "4s"},
     "image": {"offset": 4, "data_form": "I"},
     "version": {"offset": 8, "data_form": "c" * 8},
@@ -76,7 +85,7 @@ class DpxValidator:
 
         :returns: log string
         """
-        field = self.reader.read_field(HEADER_POS["magic_number"])
+        field = self.reader.read_field(HEADER_POS["magic_number"])[0]
 
         if field == b"SDPX":
             self.magic_number = "SDPX"
@@ -101,7 +110,7 @@ class DpxValidator:
 
         :returns: None
         """
-        field = self.reader.read_field(HEADER_POS["image"])
+        field = self.reader.read_field(HEADER_POS["image"])[0]
 
         if not self.file_size_in_bytes:
             self.file_size_in_bytes = stat(self.path).st_size
@@ -141,7 +150,7 @@ class DpxValidator:
 
         :returns: log string
         """
-        field = self.reader.read_field(HEADER_POS["filesize"])
+        field = self.reader.read_field(HEADER_POS["filesize"])[0]
 
         if not self.file_size_in_bytes:
             self.file_size_in_bytes = stat(self.path).st_size
@@ -166,7 +175,7 @@ class DpxValidator:
 
         :returns: None
         """
-        field = self.reader.read_field(HEADER_POS["encryption_key"])
+        field = self.reader.read_field(HEADER_POS["encryption_key"])[0]
 
         if "fffffff" not in hex(field):
             raise InvalidField(
@@ -177,8 +186,8 @@ class DpxValidator:
 
     @staticmethod
     def check_truncated(
-        path: int | str | bytes | PathLike[str] | PathLike[bytes],
-        last_field: BufferedReader = HEADER_POS["encryption_key"]
+        path: str | bytes | PathLike,
+        last_field: FieldSpec | None = None
     ) -> bool:
         """Check for truncation to appropriately invalidate a partial file.
         Empty files are treated as truncated files.
@@ -192,17 +201,19 @@ class DpxValidator:
         :returns: True for truncation
 
         """
+        if last_field is None:
+            last_field = HEADER_POS["encryption_key"]
 
         return stat(path).st_size < last_field["offset"] + calcsize(
             last_field["data_form"]
         )
 
     @staticmethod
-    def check_funny_filesize(field: BufferedReader, filesize):
+    def check_funny_filesize(field: int, filesize: int) -> bool:
         """Allow filesizes with padding to 8192 bytes.
 
-        :field: Header field stating filesize
-        :filesize: Filesize determined by DPX validator
+        :param field: Header field stating filesize
+        :param filesize: Filesize determined by DPX validator
         :return: True if valid fuzzy filesize, otherwise False
 
         """
@@ -217,14 +228,6 @@ class DpxValidator:
         return True
 
     # ************* Procedures end *******************
-
-    BASIC_PROCEDURES: list[Callable] = [
-        check_magic_number,
-        check_offset_to_image,
-        check_version,
-        check_filesize,
-        check_unencrypted
-    ]
 
     def run_basic_procedures(
         self, cut_on_error: bool = False
@@ -249,11 +252,19 @@ class DpxValidator:
         :return: tuple[bool, list] where the bool is validity and list includes
             messages which were gathered.
         """
+        basic_procedures: list[Callable[[], None | str]] = [
+            self.check_magic_number,
+            self.check_offset_to_image,
+            self.check_version,
+            self.check_filesize,
+            self.check_unencrypted,
+        ]
         validity = True
         messages = []
-        for check in self.BASIC_PROCEDURES:
+
+        for check in basic_procedures:
             try:
-                info = check(self)
+                info = check()
                 if info:
                     messages.append((MessageType.INFO, info))
             except InvalidField as invalid:

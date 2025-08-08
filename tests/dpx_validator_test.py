@@ -37,7 +37,7 @@ def test_read_field(test_file, offset, data_form, valid):
                 reader.read_field(position)
 
         else:
-            assert reader.read_field(position) == b'q'
+            assert reader.read_field(position)[0] == b'q'
 
 
 @pytest.mark.parametrize(
