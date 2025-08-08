@@ -218,14 +218,11 @@ class DpxValidator:
 
         """
 
-        if filesize <= field:
-            return False
-        if filesize % 8192 != 0:
-            return False
-        if filesize - field >= 8192:
-            return False
-
-        return True
+        return (
+            filesize > field and
+            filesize % 8192 == 0 and
+            filesize - field < 8192
+        )
 
     # ************* Procedures end *******************
 
