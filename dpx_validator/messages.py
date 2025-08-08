@@ -1,11 +1,11 @@
 import sys
 
 from enum import Enum
-"""Data structures"""
 
 
+# Data structures
 class MessageType(str, Enum):
-    INFO = "informational",
+    INFO = "informational"
     ERROR = "invalid_field"
 
 
@@ -18,10 +18,10 @@ class InvalidField(ValueError):
     """Value in the header field is invalid."""
 
 
-"""Functions"""
-
-
-def create_commandline_messages(dpx_file, valid, logs):
+# Functions
+def create_commandline_messages(
+    dpx_file: str, valid: bool, logs: list[tuple[MessageType, str]]
+) -> None:
 
     for msg_type, msg in logs:
         print(f"File {dpx_file} :: {msg}")
@@ -33,8 +33,7 @@ def create_commandline_messages(dpx_file, valid, logs):
             print(f"File {dpx_file} :: {msg}", file=sys.stderr)
 
         else:
-            raise UndefinedMessage(
-                f"Undefined message type {msg_type}")
+            raise UndefinedMessage(f"Undefined message type {msg_type}")
 
     if valid:
         print(f"File {dpx_file} is valid")
