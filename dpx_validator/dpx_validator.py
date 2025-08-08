@@ -22,10 +22,11 @@ call the `validate` function which will run each of the procedures
 """
 
 from __future__ import annotations
+from collections.abc import Callable
 from struct import calcsize
 from os import stat, PathLike
 from io import BufferedReader
-from typing import Callable, TypedDict
+from typing import TypedDict
 
 from dpx_validator.messages import InvalidField, MessageType
 from dpx_validator.file_header_reader import FileHeaderReader, FieldSpec
