@@ -1,12 +1,13 @@
 """API functions for dpx-validator."""
 
 from __future__ import annotations
+from os import PathLike
 
 from dpx_validator.messages import MessageType
 from dpx_validator.dpx_validator import DpxValidator
 
 
-def validate_file(path: str) -> tuple[bool, dict, list]:
+def validate_file(path: str | PathLike) -> tuple[bool, dict, list]:
     """
     validate file handles the validation of the dpx file. Each validation
     procedure can be found from `dpx_validator.dpx_validator.DpxValidator`

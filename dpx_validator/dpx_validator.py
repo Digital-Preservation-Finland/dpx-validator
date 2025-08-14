@@ -42,6 +42,7 @@ from dpx_validator.file_header_reader import FileHeaderReader, FieldSpec
 
 
 class HeaderPos(TypedDict):
+    """TypedDict to describe heeader dicts."""
     magic_number: FieldSpec
     image: FieldSpec
     version: FieldSpec
@@ -64,7 +65,9 @@ class DpxValidator:
     and provides a `run_basic_procedures` function to complete each procedure
     """
 
-    def __init__(self, file_handle: BufferedReader, path: str):
+    def __init__(
+        self, file_handle: BufferedReader, path: str | PathLike
+    ) -> None:
         self.reader = FileHeaderReader(file_handle)
 
         self.path = path

@@ -7,6 +7,7 @@ BIGENDIAN_BYTEORDER = ">"
 
 
 class FieldSpec(TypedDict):
+    """TypedDict to describe header fields."""
     offset: int
     data_form: str
 
