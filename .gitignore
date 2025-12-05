@@ -10,3 +10,4 @@ venv*/
 junit.xml
 PKG-INFO
 .cache
+dpx_validator/_version.py
