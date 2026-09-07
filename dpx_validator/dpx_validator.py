@@ -181,7 +181,7 @@ class DpxValidator:
         """
         field = self.reader.read_field(HEADER_POS["encryption_key"])[0]
 
-        if "fffffff" not in hex(field):
+        if "ffffffff" not in hex(field):
             raise InvalidField(
                 "Encryption key in header not set to NULL or undefined"
             )
